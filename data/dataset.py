@@ -12,8 +12,16 @@ Dataset preprocessing class for dataloader.
 from torch.utils import data
 import torch
 import os
+from PIL import Image
+from random import shuffle
 import os.path as osp
 from torchvision import transforms as T
+from torch.utils.data import DataLoader
+import numpy as np
+import xml.etree.ElementTree as ET
+
+def constrain(val, min_val, max_val):
+    return min(max_val, max(min_val, val))
 
 
 class Pair_Dataset(data.Dataset):
@@ -27,7 +35,6 @@ class Pair_Dataset(data.Dataset):
         self.imnum = len(self.imkey_list)
         self.label_shape = label_shape
         self.scale_size = scale_size
-        
         # Separate dataset
         if self.test:
             self.imkey_list = self.imkey_list
@@ -35,44 +42,46 @@ class Pair_Dataset(data.Dataset):
             self.imkey_list = self.imkey_list[:int(0.7*self.imnum)]
         else:
             self.imkey_list = self.imkey_list[int(0.7*self.imnum):]
+        self.imnum = len(self.imkey_list)
 
         # Transform
         if transforms is None:
             normalize = T.Normalize(mean=[0.485, 0.456, 0.406],
                                     std =[0.229, 0.224, 0.225])
             # No enhancement on training and validating set
-            self.transforms = T.Compose([T.Scale(scale_size), T.ToTensor(), normalize]) #T.RandomHorizontalFlip(),
+            self.transforms = T.Compose([T.Scale((scale_size, scale_size)), T.ToTensor(), normalize]) #T.RandomHorizontalFlip(),
 
-    def __getitem__(self, imkey):
+    def __getitem__(self, index):
         """
         Return a pair of images and their corrsponding bounding box.
         """
-        im_a_path = osp.join(self.im_root, imkey+"_a.jpg")
-        im_b_path = osp.join(self.im_root, imkey+"_b.jpg")
-        labela_path = osp.join(self.im_root, imkey+"_a.xml")
-        labelb_path = osp.join(self.im_root, imkey+"_b.xml")
+        im_a_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.jpg")
+        im_b_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.jpg")
+        labela_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.xml")
+        labelb_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.xml")
         im_a = self.transforms(Image.open(im_a_path))
         im_b = self.transforms(Image.open(im_b_path))
-        labela, labelb = load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
+        labela, labelb = self.load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
         return im_a, im_b, labela, labelb
     
-    def load_pair_label(labela_path, labelb_path, label_shape, scale_size):
+    def load_pair_label(self, labela_path, labelb_path, label_shape, scale_size):   # self unused
         """
         Return normalized groundtruth bboxes space.
         """
-        labela = get_label(labela_path, label_shape, scale_size)
-        labelb = get_label(labelb_path, label_shape, scale_size)
+        labela = self.get_label(labela_path, label_shape, scale_size)
+        labelb = self.get_label(labelb_path, label_shape, scale_size)
         return labela, labelb
 
-    def get_label(label_path, label_shape, scale_size):
+    def get_label(self, label_path, label_shape, scale_size):
         label = np.zeros(label_shape)
-        if osp.exists(labela_path):
-            tree = ET.parse(labela_path)
+        if osp.exists(label_path):
+            tree = ET.parse(label_path)
             im_size = tree.findall("size")[0]
             ow = int(im_size.find("width").text)
             oh = int(im_size.find("height").text)
             sx = float(scale_size) / ow
             sy = float(scale_size) / oh
+            boxes = []
             for obj in tree.findall('object'):
                 bbox = obj.find('bndbox')
                 t_boxes = [int(bbox.find('xmin').text), int(bbox.find('ymin').text),
@@ -96,7 +105,8 @@ class Pair_Dataset(data.Dataset):
                 boxes[i][2] = (top + bottom) / 2
                 boxes[i][3] = right - left
                 boxes[i][4] = bottom - top
-            lst = range(len(boxes))
+            # In python3 range is a generator object - it does not return a list. Convert it to a list before shuffling.
+            lst = list(range(len(boxes)))       
             shuffle(lst)
             for i in lst:
                 x, y, w, h = boxes[i][1:]
@@ -105,8 +115,8 @@ class Pair_Dataset(data.Dataset):
                 col = int(x * label_shape[2])
                 row = int(y * label_shape[1])
                 x = x * label_shape[2] - col
-                y = y * output_shape[1] - row
-                if labela[0, row, col] != 0:
+                y = y * label_shape[1] - row
+                if label[0, row, col] != 0:
                     continue
                 label[:, row, col] = 1, x, y, w, h
         return label
@@ -114,18 +124,30 @@ class Pair_Dataset(data.Dataset):
     def get_imkeylist(self):
         imkey_list = []
         for i in os.listdir(self.im_root):
-            if i[-3:] == "jpg" and (i[-6:] not in imkey_list) and ("diff" not in i):
-                imkey_list.append(i[:-6])
+            if i[-3:] == "jpg" and (int(i[:-6]) not in imkey_list) and ("diff" not in i):
+                imkey_list.append(int(i[:-6]))
         return imkey_list
     
     def __len__(self):
         """
         Return image pair number of the dataset.
         """
-        return len(self.imnum)
+        return self.imnum
 
 
-train_dataset = Pair_Dataset("/home/zq/diffproj/data/train", train=True)
+if __name__ == "__main__":
+    train_dataset = Pair_Dataset("/home/zq/diffproj/data/train", train=True)
+    trainloader = DataLoader(train_dataset, 
+                             batch_size=1,
+                             shuffle=True,
+                             num_workers=4)
+    print (np.sort(train_dataset.imkey_list))
+    print (len(train_dataset.imkey_list))
+    #exit()
+    for ii, (im_a, im_b, labela, labelb) in enumerate(trainloader):
+        print (ii, im_a.size(), im_b.size(), labela.shape, labelb.shape)
+
+
 
 
 
