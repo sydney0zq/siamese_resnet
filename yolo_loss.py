@@ -34,7 +34,8 @@ def criterion(labela, labelb, pred_ab, pred_ba):
     B = int(labela.size()[1]/5)
     pred_ab = pred_ab.type('torch.cuda.DoubleTensor')
     pred_ba = pred_ba.type('torch.cuda.DoubleTensor')
-    loss = 0
+    loss1 = Variable(torch.zeros((1))).cuda().type('torch.cuda.DoubleTensor')
+    loss2 = Variable(torch.zeros((1))).cuda().type('torch.cuda.DoubleTensor')
     assert(B == 1), " | Error, bounding box for each grid weird..."
     for i_pair in range(labela.size()[0]):
         for row in range(labela.size()[2]):
@@ -46,24 +47,25 @@ def criterion(labela, labelb, pred_ab, pred_ba):
                     #print (type(pred_ab[i_pair, 0, row, col]))
                     #print (pred_ab[i_pair, 0, row, col])
                     prob_diff = labela[i_pair, 0, row, col] - pred_ab[i_pair, 0, row, col]
-                    loss += torch.mul(prob_diff, prob_diff)
+                    loss1 += torch.mul(prob_diff, prob_diff)
                    # print ("loss stage1", loss)
                     diff_xy = labela[i_pair, 1:3, row, col] - pred_ab[i_pair, 1:3, row, col]
-                    loss += torch.sum(torch.mul(diff_xy, diff_xy))
+                    loss1 += torch.sum(torch.mul(diff_xy, diff_xy))
                    # print ("loss stage2", loss)
                     #sqrt_diff_wh = torch.sqrt(labela[i_pair, 3:5, row, col]) - torch.sqrt(pred_ab[i_pair, 3:5, row, col])
                     sqrt_diff_wh = labela[i_pair, 3:5, row, col] - pred_ab[i_pair, 3:5, row, col]
                    # print ("sqrt_diff_wh", sqrt_diff_wh)
-                    loss += torch.sum(torch.mul(sqrt_diff_wh, sqrt_diff_wh))
+                    loss1 += torch.sum(torch.mul(sqrt_diff_wh, sqrt_diff_wh))
                    # print ("loss stage3", loss)
                     # Branch 2
                     prob_diff = labelb[i_pair, 0, row, col] - pred_ba[i_pair, 0, row, col]
-                    loss += torch.mul(prob_diff, prob_diff)
+                    loss2 += torch.mul(prob_diff, prob_diff)
                     diff_xy = labelb[i_pair, 1:3, row, col] - pred_ba[i_pair, 1:3, row, col]
-                    loss += torch.sum(torch.mul(diff_xy, diff_xy))
+                    loss2 += torch.sum(torch.mul(diff_xy, diff_xy))
                     #sqrt_diff_wh = torch.sqrt(labelb[i_pair, 3:5, row, col]) - torch.sqrt(pred_ba[i_pair, 3:5, row, col])
                     sqrt_diff_wh = labelb[i_pair, 3:5, row, col] - pred_ba[i_pair, 3:5, row, col]
-                    loss += torch.sum(torch.mul(sqrt_diff_wh, sqrt_diff_wh))
+                    loss2 += torch.sum(torch.mul(sqrt_diff_wh, sqrt_diff_wh))
+    loss = (loss1+loss2)/labela.size()[0]
     return loss
 
 def cudaftensor2np(var):

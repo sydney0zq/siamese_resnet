@@ -1,0 +1,763 @@
+ | Epoch 0/79
+ | --------------------
+ | Epoch 0, Loss 7.35
+ | Epoch 0, Loss 3.29
+ | Epoch 0, Loss 1.33
+ | Epoch 0, Loss 1.09
+ | Epoch 0, Loss 1.43
+ | Epoch 0, Loss 1.58
+ | Epoch 0, Loss 0.54
+ | Epoch 0, Loss 2.93
+ | Epoch 0, Loss 0.87
+ | train Epoch Loss 3.36
+ | valid Epoch Loss 1.00
+ | Epoch 0 state saved, now loss reaches 1.0001204548483944...
+ | Time consuming: 21.79s
+ | 
+ | Epoch 1/79
+ | --------------------
+ | Epoch 1, Loss 1.02
+ | Epoch 1, Loss 0.98
+ | Epoch 1, Loss 1.59
+ | Epoch 1, Loss 1.29
+ | Epoch 1, Loss 0.39
+ | Epoch 1, Loss 1.43
+ | Epoch 1, Loss 0.82
+ | Epoch 1, Loss 0.93
+ | Epoch 1, Loss 2.78
+ | train Epoch Loss 1.35
+ | valid Epoch Loss 1.02
+ | Time consuming: 44.71s
+ | 
+ | Epoch 2/79
+ | --------------------
+ | Epoch 2, Loss 0.72
+ | Epoch 2, Loss 1.79
+ | Epoch 2, Loss 2.06
+ | Epoch 2, Loss 1.16
+ | Epoch 2, Loss 0.79
+ | Epoch 2, Loss 0.55
+ | Epoch 2, Loss 0.86
+ | Epoch 2, Loss 1.85
+ | Epoch 2, Loss 1.01
+ | train Epoch Loss 1.36
+ | valid Epoch Loss 1.06
+ | Time consuming: 66.33s
+ | 
+ | Epoch 3/79
+ | --------------------
+ | Epoch 3, Loss 1.64
+ | Epoch 3, Loss 1.25
+ | Epoch 3, Loss 3.06
+ | Epoch 3, Loss 1.14
+ | Epoch 3, Loss 3.67
+ | Epoch 3, Loss 0.53
+ | Epoch 3, Loss 2.29
+ | Epoch 3, Loss 1.48
+ | Epoch 3, Loss 0.98
+ | train Epoch Loss 1.35
+ | valid Epoch Loss 1.05
+ | Time consuming: 88.57s
+ | 
+ | Epoch 4/79
+ | --------------------
+ | Epoch 4, Loss 1.40
+ | Epoch 4, Loss 0.53
+ | Epoch 4, Loss 0.73
+ | Epoch 4, Loss 1.60
+ | Epoch 4, Loss 0.77
+ | Epoch 4, Loss 0.79
+ | Epoch 4, Loss 1.69
+ | Epoch 4, Loss 1.62
+ | Epoch 4, Loss 1.26
+ | train Epoch Loss 1.37
+ | valid Epoch Loss 0.98
+ | Epoch 4 state saved, now loss reaches 0.9832548296744978...
+ | Time consuming: 111.24s
+ | 
+ | Epoch 5/79
+ | --------------------
+ | Epoch 5, Loss 1.34
+ | Epoch 5, Loss 2.50
+ | Epoch 5, Loss 0.87
+ | Epoch 5, Loss 1.85
+ | Epoch 5, Loss 1.21
+ | Epoch 5, Loss 0.98
+ | Epoch 5, Loss 1.21
+ | Epoch 5, Loss 1.00
+ | Epoch 5, Loss 1.34
+ | train Epoch Loss 1.36
+ | valid Epoch Loss 1.01
+ | Time consuming: 133.36s
+ | 
+ | Epoch 6/79
+ | --------------------
+ | Epoch 6, Loss 1.33
+ | Epoch 6, Loss 1.00
+ | Epoch 6, Loss 0.45
+ | Epoch 6, Loss 1.15
+ | Epoch 6, Loss 0.49
+ | Epoch 6, Loss 0.68
+ | Epoch 6, Loss 0.72
+ | Epoch 6, Loss 0.84
+ | Epoch 6, Loss 0.71
+ | train Epoch Loss 1.35
+ | valid Epoch Loss 1.01
+ | Time consuming: 155.01s
+ | 
+ | Epoch 7/79
+ | --------------------
+ | Epoch 7, Loss 1.73
+ | Epoch 7, Loss 0.79
+ | Epoch 7, Loss 1.29
+ | Epoch 7, Loss 0.88
+ | Epoch 7, Loss 0.73
+ | Epoch 7, Loss 1.47
+ | Epoch 7, Loss 1.17
+ | Epoch 7, Loss 1.26
+ | Epoch 7, Loss 1.57
+ | train Epoch Loss 1.37
+ | valid Epoch Loss 1.01
+ | Time consuming: 176.94s
+ | 
+ | Epoch 8/79
+ | --------------------
+ | Epoch 8, Loss 1.00
+ | Epoch 8, Loss 0.64
+ | Epoch 8, Loss 2.29
+ | Epoch 8, Loss 1.16
+ | Epoch 8, Loss 1.21
+ | Epoch 8, Loss 3.48
+ | Epoch 8, Loss 1.46
+ | Epoch 8, Loss 1.27
+ | Epoch 8, Loss 0.71
+ | train Epoch Loss 1.36
+ | valid Epoch Loss 1.00
+ | Time consuming: 198.37s
+ | 
+ | Epoch 9/79
+ | --------------------
+ | Epoch 9, Loss 1.01
+ | Epoch 9, Loss 0.99
+ | Epoch 9, Loss 1.38
+ | Epoch 9, Loss 1.22
+ | Epoch 9, Loss 0.60
+ | Epoch 9, Loss 1.14
+ | Epoch 9, Loss 2.70
+ | Epoch 9, Loss 0.74
+ | Epoch 9, Loss 1.52
+ | train Epoch Loss 1.36
+ | valid Epoch Loss 1.00
+ | Time consuming: 221.12s
+ | 
+ | Epoch 10/79
+ | --------------------
+ | Epoch 10, Loss 0.65
+ | Epoch 10, Loss 1.24
+ | Epoch 10, Loss 0.58
+ | Epoch 10, Loss 6.58
+ | Epoch 10, Loss 1.60
+ | Epoch 10, Loss 0.84
+ | Epoch 10, Loss 2.00
+ | Epoch 10, Loss 1.06
+ | Epoch 10, Loss 1.38
+ | train Epoch Loss 1.36
+ | valid Epoch Loss 0.99
+ | Time consuming: 243.73s
+ | 
+ | Epoch 11/79
+ | --------------------
+ | Epoch 11, Loss 1.12
+ | Epoch 11, Loss 1.89
+ | Epoch 11, Loss 1.52
+ | Epoch 11, Loss 1.23
+ | Epoch 11, Loss 0.88
+ | Epoch 11, Loss 0.64
+ | Epoch 11, Loss 5.28
+ | Epoch 11, Loss 1.32
+ | Epoch 11, Loss 0.72
+ | train Epoch Loss 1.37
+ | valid Epoch Loss 1.04
+ | Time consuming: 266.30s
+ | 
+ | Epoch 12/79
+ | --------------------
+ | Epoch 12, Loss 1.84
+ | Epoch 12, Loss 1.10
+ | Epoch 12, Loss 0.65
+ | Epoch 12, Loss 1.20
+ | Epoch 12, Loss 1.30
+ | Epoch 12, Loss 0.72
+ | Epoch 12, Loss 0.85
+ | Epoch 12, Loss 0.92
+ | Epoch 12, Loss 0.52
+ | train Epoch Loss 1.37
+ | valid Epoch Loss 1.02
+ | Time consuming: 288.96s
+ | 
+ | Epoch 13/79
+ | --------------------
+ | Epoch 13, Loss 0.70
+ | Epoch 13, Loss 1.61
+ | Epoch 13, Loss 1.02
+ | Epoch 13, Loss 1.38
+ | Epoch 13, Loss 1.39
+ | Epoch 13, Loss 1.53
+ | Epoch 13, Loss 0.64
+ | Epoch 13, Loss 1.38
+ | Epoch 13, Loss 1.26
+ | train Epoch Loss 1.37
+ | valid Epoch Loss 1.01
+ | Time consuming: 310.91s
+ | 
+ | Epoch 14/79
+ | --------------------
+ | Epoch 14, Loss 0.79
+ | Epoch 14, Loss 1.74
+ | Epoch 14, Loss 1.18
+ | Epoch 14, Loss 2.02
+ | Epoch 14, Loss 1.18
+ | Epoch 14, Loss 1.05
+ | Epoch 14, Loss 1.09
+ | Epoch 14, Loss 1.42
+ | Epoch 14, Loss 1.11
+ | train Epoch Loss 1.38
+ | valid Epoch Loss 1.02
+ | Time consuming: 333.54s
+ | 
+ | Epoch 15/79
+ | --------------------
+ | Epoch 15, Loss 1.93
+ | Epoch 15, Loss 1.14
+ | Epoch 15, Loss 7.90
+ | Epoch 15, Loss 0.91
+ | Epoch 15, Loss 0.58
+ | Epoch 15, Loss 1.05
+ | Epoch 15, Loss 1.72
+ | Epoch 15, Loss 0.97
+ | Epoch 15, Loss 1.45
+ | train Epoch Loss 1.38
+ | valid Epoch Loss 1.02
+ | Time consuming: 355.75s
+ | 
+ | Epoch 16/79
+ | --------------------
+ | Epoch 16, Loss 0.79
+ | Epoch 16, Loss 1.31
+ | Epoch 16, Loss 1.68
+ | Epoch 16, Loss 2.56
+ | Epoch 16, Loss 0.80
+ | Epoch 16, Loss 0.45
+ | Epoch 16, Loss 1.20
+ | Epoch 16, Loss 0.88
+ | Epoch 16, Loss 0.81
+ | train Epoch Loss 1.36
+ | valid Epoch Loss 1.02
+ | Time consuming: 378.41s
+ | 
+ | Epoch 17/79
+ | --------------------
+ | Epoch 17, Loss 0.99
+ | Epoch 17, Loss 0.94
+ | Epoch 17, Loss 1.25
+ | Epoch 17, Loss 3.14
+ | Epoch 17, Loss 1.04
+ | Epoch 17, Loss 1.37
+ | Epoch 17, Loss 0.53
+ | Epoch 17, Loss 0.73
+ | Epoch 17, Loss 0.87
+ | train Epoch Loss 1.37
+ | valid Epoch Loss 0.99
+ | Time consuming: 400.76s
+ | 
+ | Epoch 18/79
+ | --------------------
+ | Epoch 18, Loss 0.88
+ | Epoch 18, Loss 1.47
+ | Epoch 18, Loss 0.60
+ | Epoch 18, Loss 1.65
+ | Epoch 18, Loss 0.78
+ | Epoch 18, Loss 1.68
+ | Epoch 18, Loss 1.11
+ | Epoch 18, Loss 1.94
+ | Epoch 18, Loss 0.52
+ | train Epoch Loss 1.35
+ | valid Epoch Loss 0.99
+ | Time consuming: 423.06s
+ | 
+ | Epoch 19/79
+ | --------------------
+ | Epoch 19, Loss 0.29
+ | Epoch 19, Loss 2.32
+ | Epoch 19, Loss 1.15
+ | Epoch 19, Loss 0.93
+ | Epoch 19, Loss 1.20
+ | Epoch 19, Loss 0.82
+ | Epoch 19, Loss 1.27
+ | Epoch 19, Loss 0.74
+ | Epoch 19, Loss 1.06
+ | train Epoch Loss 1.34
+ | valid Epoch Loss 0.97
+ | Epoch 19 state saved, now loss reaches 0.9659760180281275...
+ | Time consuming: 444.85s
+ | 
+ | Epoch 20/79
+ | --------------------
+ | Epoch 20, Loss 0.98
+ | Epoch 20, Loss 1.11
+ | Epoch 20, Loss 1.11
+ | Epoch 20, Loss 0.65
+ | Epoch 20, Loss 0.51
+ | Epoch 20, Loss 0.70
+ | Epoch 20, Loss 1.10
+ | Epoch 20, Loss 1.38
+ | Epoch 20, Loss 1.29
+ | train Epoch Loss 1.29
+ | valid Epoch Loss 0.90
+ | Epoch 20 state saved, now loss reaches 0.9002347234711511...
+ | Time consuming: 467.73s
+ | 
+ | Epoch 21/79
+ | --------------------
+ | Epoch 21, Loss 0.84
+ | Epoch 21, Loss 0.59
+ | Epoch 21, Loss 1.24
+ | Epoch 21, Loss 1.01
+ | Epoch 21, Loss 1.28
+ | Epoch 21, Loss 0.93
+ | Epoch 21, Loss 0.92
+ | Epoch 21, Loss 1.24
+ | Epoch 21, Loss 0.49
+ | train Epoch Loss 1.21
+ | valid Epoch Loss 0.87
+ | Epoch 21 state saved, now loss reaches 0.8702942023156648...
+ | Time consuming: 491.17s
+ | 
+ | Epoch 22/79
+ | --------------------
+ | Epoch 22, Loss 1.05
+ | Epoch 22, Loss 0.61
+ | Epoch 22, Loss 0.46
+ | Epoch 22, Loss 0.93
+ | Epoch 22, Loss 1.06
+ | Epoch 22, Loss 0.65
+ | Epoch 22, Loss 0.77
+ | Epoch 22, Loss 1.01
+ | Epoch 22, Loss 2.45
+ | train Epoch Loss 1.18
+ | valid Epoch Loss 0.82
+ | Epoch 22 state saved, now loss reaches 0.8179370281957725...
+ | Time consuming: 513.85s
+ | 
+ | Epoch 23/79
+ | --------------------
+ | Epoch 23, Loss 0.88
+ | Epoch 23, Loss 1.43
+ | Epoch 23, Loss 1.54
+ | Epoch 23, Loss 0.73
+ | Epoch 23, Loss 1.23
+ | Epoch 23, Loss 0.88
+ | Epoch 23, Loss 1.01
+ | Epoch 23, Loss 0.78
+ | Epoch 23, Loss 0.74
+ | train Epoch Loss 1.14
+ | valid Epoch Loss 0.91
+ | Time consuming: 536.01s
+ | 
+ | Epoch 24/79
+ | --------------------
+ | Epoch 24, Loss 0.67
+ | Epoch 24, Loss 1.03
+ | Epoch 24, Loss 2.53
+ | Epoch 24, Loss 3.49
+ | Epoch 24, Loss 0.90
+ | Epoch 24, Loss 1.36
+ | Epoch 24, Loss 0.64
+ | Epoch 24, Loss 0.83
+ | Epoch 24, Loss 1.26
+ | train Epoch Loss 1.17
+ | valid Epoch Loss 0.89
+ | Time consuming: 558.67s
+ | 
+ | Epoch 25/79
+ | --------------------
+ | Epoch 25, Loss 0.35
+ | Epoch 25, Loss 0.94
+ | Epoch 25, Loss 0.62
+ | Epoch 25, Loss 0.85
+ | Epoch 25, Loss 1.40
+ | Epoch 25, Loss 0.85
+ | Epoch 25, Loss 0.93
+ | Epoch 25, Loss 1.00
+ | Epoch 25, Loss 1.57
+ | train Epoch Loss 1.10
+ | valid Epoch Loss 0.74
+ | Epoch 25 state saved, now loss reaches 0.7424105003980557...
+ | Time consuming: 580.89s
+ | 
+ | Epoch 26/79
+ | --------------------
+ | Epoch 26, Loss 0.91
+ | Epoch 26, Loss 0.54
+ | Epoch 26, Loss 0.57
+ | Epoch 26, Loss 0.47
+ | Epoch 26, Loss 1.02
+ | Epoch 26, Loss 0.93
+ | Epoch 26, Loss 1.04
+ | Epoch 26, Loss 0.75
+ | Epoch 26, Loss 0.81
+ | train Epoch Loss 1.05
+ | valid Epoch Loss 0.68
+ | Epoch 26 state saved, now loss reaches 0.6751419633195688...
+ | Time consuming: 602.32s
+ | 
+ | Epoch 27/79
+ | --------------------
+ | Epoch 27, Loss 0.79
+ | Epoch 27, Loss 0.54
+ | Epoch 27, Loss 0.35
+ | Epoch 27, Loss 0.43
+ | Epoch 27, Loss 0.46
+ | Epoch 27, Loss 3.40
+ | Epoch 27, Loss 1.24
+ | Epoch 27, Loss 1.49
+ | Epoch 27, Loss 0.63
+ | train Epoch Loss 1.01
+ | valid Epoch Loss 0.74
+ | Time consuming: 624.68s
+ | 
+ | Epoch 28/79
+ | --------------------
+ | Epoch 28, Loss 1.04
+ | Epoch 28, Loss 0.90
+ | Epoch 28, Loss 0.53
+ | Epoch 28, Loss 2.53
+ | Epoch 28, Loss 0.49
+ | Epoch 28, Loss 0.67
+ | Epoch 28, Loss 1.10
+ | Epoch 28, Loss 0.63
+ | Epoch 28, Loss 0.85
+ | train Epoch Loss 0.99
+ | valid Epoch Loss 0.70
+ | Time consuming: 647.01s
+ | 
+ | Epoch 29/79
+ | --------------------
+ | Epoch 29, Loss 1.48
+ | Epoch 29, Loss 0.64
+ | Epoch 29, Loss 0.23
+ | Epoch 29, Loss 0.39
+ | Epoch 29, Loss 0.57
+ | Epoch 29, Loss 0.95
+ | Epoch 29, Loss 0.42
+ | Epoch 29, Loss 0.43
+ | Epoch 29, Loss 0.90
+ | train Epoch Loss 0.90
+ | valid Epoch Loss 0.65
+ | Epoch 29 state saved, now loss reaches 0.6486161611044966...
+ | Time consuming: 670.29s
+ | 
+ | Epoch 30/79
+ | --------------------
+ | Epoch 30, Loss 0.54
+ | Epoch 30, Loss 2.17
+ | Epoch 30, Loss 0.58
+ | Epoch 30, Loss 0.54
+ | Epoch 30, Loss 0.83
+ | Epoch 30, Loss 2.03
+ | Epoch 30, Loss 0.87
+ | Epoch 30, Loss 0.65
+ | Epoch 30, Loss 0.98
+ | train Epoch Loss 0.86
+ | valid Epoch Loss 0.64
+ | Epoch 30 state saved, now loss reaches 0.6432298240830526...
+ | Time consuming: 693.13s
+ | 
+ | Epoch 31/79
+ | --------------------
+ | Epoch 31, Loss 0.62
+ | Epoch 31, Loss 0.38
+ | Epoch 31, Loss 0.23
+ | Epoch 31, Loss 0.83
+ | Epoch 31, Loss 0.60
+ | Epoch 31, Loss 0.97
+ | Epoch 31, Loss 0.96
+ | Epoch 31, Loss 0.50
+ | Epoch 31, Loss 1.31
+ | train Epoch Loss 0.84
+ | valid Epoch Loss 0.61
+ | Epoch 31 state saved, now loss reaches 0.6074990246773989...
+ | Time consuming: 715.20s
+ | 
+ | Epoch 32/79
+ | --------------------
+ | Epoch 32, Loss 0.91
+ | Epoch 32, Loss 0.32
+ | Epoch 32, Loss 0.34
+ | Epoch 32, Loss 1.06
+ | Epoch 32, Loss 2.30
+ | Epoch 32, Loss 0.54
+ | Epoch 32, Loss 1.89
+ | Epoch 32, Loss 1.23
+ | Epoch 32, Loss 0.35
+ | train Epoch Loss 0.79
+ | valid Epoch Loss 0.60
+ | Epoch 32 state saved, now loss reaches 0.6021909898477105...
+ | Time consuming: 737.15s
+ | 
+ | Epoch 33/79
+ | --------------------
+ | Epoch 33, Loss 0.33
+ | Epoch 33, Loss 0.67
+ | Epoch 33, Loss 0.16
+ | Epoch 33, Loss 0.49
+ | Epoch 33, Loss 0.33
+ | Epoch 33, Loss 0.69
+ | Epoch 33, Loss 0.44
+ | Epoch 33, Loss 0.64
+ | Epoch 33, Loss 1.72
+ | train Epoch Loss 0.75
+ | valid Epoch Loss 0.57
+ | Epoch 33 state saved, now loss reaches 0.5738510356884188...
+ | Time consuming: 760.02s
+ | 
+ | Epoch 34/79
+ | --------------------
+ | Epoch 34, Loss 0.42
+ | Epoch 34, Loss 0.37
+ | Epoch 34, Loss 0.52
+ | Epoch 34, Loss 1.74
+ | Epoch 34, Loss 0.75
+ | Epoch 34, Loss 0.40
+ | Epoch 34, Loss 0.51
+ | Epoch 34, Loss 0.60
+ | Epoch 34, Loss 0.89
+ | train Epoch Loss 0.74
+ | valid Epoch Loss 0.65
+ | Time consuming: 783.10s
+ | 
+ | Epoch 35/79
+ | --------------------
+ | Epoch 35, Loss 6.33
+ | Epoch 35, Loss 0.17
+ | Epoch 35, Loss 0.23
+ | Epoch 35, Loss 0.52
+ | Epoch 35, Loss 0.48
+ | Epoch 35, Loss 0.04
+ | Epoch 35, Loss 0.37
+ | Epoch 35, Loss 2.25
+ | Epoch 35, Loss 0.19
+ | train Epoch Loss 0.70
+ | valid Epoch Loss 0.57
+ | Epoch 35 state saved, now loss reaches 0.5718307361666252...
+ | Time consuming: 805.78s
+ | 
+ | Epoch 36/79
+ | --------------------
+ | Epoch 36, Loss 0.37
+ | Epoch 36, Loss 0.48
+ | Epoch 36, Loss 0.36
+ | Epoch 36, Loss 0.69
+ | Epoch 36, Loss 5.89
+ | Epoch 36, Loss 0.16
+ | Epoch 36, Loss 0.24
+ | Epoch 36, Loss 0.63
+ | Epoch 36, Loss 0.40
+ | train Epoch Loss 0.64
+ | valid Epoch Loss 0.66
+ | Time consuming: 828.27s
+ | 
+ | Epoch 37/79
+ | --------------------
+ | Epoch 37, Loss 2.74
+ | Epoch 37, Loss 0.48
+ | Epoch 37, Loss 1.22
+ | Epoch 37, Loss 1.82
+ | Epoch 37, Loss 0.38
+ | Epoch 37, Loss 0.23
+ | Epoch 37, Loss 0.34
+ | Epoch 37, Loss 0.53
+ | Epoch 37, Loss 0.36
+ | train Epoch Loss 0.65
+ | valid Epoch Loss 0.53
+ | Epoch 37 state saved, now loss reaches 0.528141326670872...
+ | Time consuming: 850.54s
+ | 
+ | Epoch 38/79
+ | --------------------
+ | Epoch 38, Loss 0.51
+ | Epoch 38, Loss 1.87
+ | Epoch 38, Loss 0.25
+ | Epoch 38, Loss 0.30
+ | Epoch 38, Loss 0.20
+ | Epoch 38, Loss 0.34
+ | Epoch 38, Loss 0.44
+ | Epoch 38, Loss 2.76
+ | Epoch 38, Loss 0.35
+ | train Epoch Loss 0.59
+ | valid Epoch Loss 0.55
+ | Time consuming: 872.74s
+ | 
+ | Epoch 39/79
+ | --------------------
+ | Epoch 39, Loss 0.24
+ | Epoch 39, Loss 0.30
+ | Epoch 39, Loss 3.12
+ | Epoch 39, Loss 0.30
+ | Epoch 39, Loss 0.27
+ | Epoch 39, Loss 0.46
+ | Epoch 39, Loss 0.39
+ | Epoch 39, Loss 0.15
+ | Epoch 39, Loss 0.18
+ | train Epoch Loss 0.59
+ | valid Epoch Loss 0.53
+ | Time consuming: 894.69s
+ | 
+ | Epoch 40/79
+ | --------------------
+ | Epoch 40, Loss 0.79
+ | Epoch 40, Loss 1.07
+ | Epoch 40, Loss 0.41
+ | Epoch 40, Loss 0.35
+ | Epoch 40, Loss 1.62
+ | Epoch 40, Loss 0.14
+ | Epoch 40, Loss 0.44
+ | Epoch 40, Loss 2.08
+ | Epoch 40, Loss 0.43
+ | train Epoch Loss 0.57
+ | valid Epoch Loss 0.53
+ | Epoch 40 state saved, now loss reaches 0.5281381401927293...
+ | Time consuming: 916.72s
+ | 
+ | Epoch 41/79
+ | --------------------
+ | Epoch 41, Loss 0.07
+ | Epoch 41, Loss 1.28
+ | Epoch 41, Loss 0.28
+ | Epoch 41, Loss 1.57
+ | Epoch 41, Loss 0.56
+ | Epoch 41, Loss 0.44
+ | Epoch 41, Loss 0.34
+ | Epoch 41, Loss 0.23
+ | Epoch 41, Loss 0.51
+ | train Epoch Loss 0.51
+ | valid Epoch Loss 0.59
+ | Time consuming: 939.71s
+ | 
+ | Epoch 42/79
+ | --------------------
+ | Epoch 42, Loss 0.17
+ | Epoch 42, Loss 0.25
+ | Epoch 42, Loss 0.25
+ | Epoch 42, Loss 0.48
+ | Epoch 42, Loss 0.30
+ | Epoch 42, Loss 0.11
+ | Epoch 42, Loss 2.08
+ | Epoch 42, Loss 0.59
+ | Epoch 42, Loss 0.49
+ | train Epoch Loss 0.52
+ | valid Epoch Loss 0.54
+ | Time consuming: 961.96s
+ | 
+ | Epoch 43/79
+ | --------------------
+ | Epoch 43, Loss 0.08
+ | Epoch 43, Loss 0.57
+ | Epoch 43, Loss 0.39
+ | Epoch 43, Loss 0.40
+ | Epoch 43, Loss 0.50
+ | Epoch 43, Loss 2.10
+ | Epoch 43, Loss 0.19
+ | Epoch 43, Loss 1.17
+ | Epoch 43, Loss 0.30
+ | train Epoch Loss 0.55
+ | valid Epoch Loss 0.55
+ | Time consuming: 984.67s
+ | 
+ | Epoch 44/79
+ | --------------------
+ | Epoch 44, Loss 0.12
+ | Epoch 44, Loss 0.31
+ | Epoch 44, Loss 0.41
+ | Epoch 44, Loss 1.57
+ | Epoch 44, Loss 0.05
+ | Epoch 44, Loss 0.25
+ | Epoch 44, Loss 0.10
+ | Epoch 44, Loss 0.20
+ | Epoch 44, Loss 0.29
+ | train Epoch Loss 0.51
+ | valid Epoch Loss 0.55
+ | Time consuming: 1007.05s
+ | 
+ | Epoch 45/79
+ | --------------------
+ | Epoch 45, Loss 0.10
+ | Epoch 45, Loss 0.39
+ | Epoch 45, Loss 0.48
+ | Epoch 45, Loss 0.63
+ | Epoch 45, Loss 0.33
+ | Epoch 45, Loss 0.09
+ | Epoch 45, Loss 0.26
+ | Epoch 45, Loss 0.21
+ | Epoch 45, Loss 0.33
+ | train Epoch Loss 0.49
+ | valid Epoch Loss 0.48
+ | Epoch 45 state saved, now loss reaches 0.4776941183741447...
+ | Time consuming: 1029.89s
+ | 
+ | Epoch 46/79
+ | --------------------
+ | Epoch 46, Loss 0.40
+ | Epoch 46, Loss 0.16
+ | Epoch 46, Loss 0.14
+ | Epoch 46, Loss 0.13
+ | Epoch 46, Loss 0.23
+ | Epoch 46, Loss 0.24
+ | Epoch 46, Loss 1.68
+ | Epoch 46, Loss 0.31
+ | Epoch 46, Loss 0.16
+ | train Epoch Loss 0.50
+ | valid Epoch Loss 0.56
+ | Time consuming: 1052.34s
+ | 
+ | Epoch 47/79
+ | --------------------
+ | Epoch 47, Loss 0.86
+ | Epoch 47, Loss 1.79
+ | Epoch 47, Loss 0.32
+ | Epoch 47, Loss 0.26
+ | Epoch 47, Loss 2.44
+ | Epoch 47, Loss 0.55
+ | Epoch 47, Loss 0.22
+ | Epoch 47, Loss 0.30
+ | Epoch 47, Loss 0.13
+ | train Epoch Loss 0.49
+ | valid Epoch Loss 0.50
+ | Time consuming: 1075.13s
+ | 
+ | Epoch 48/79
+ | --------------------
+ | Epoch 48, Loss 0.29
+ | Epoch 48, Loss 0.14
+ | Epoch 48, Loss 0.06
+ | Epoch 48, Loss 0.16
+ | Epoch 48, Loss 0.26
+ | Epoch 48, Loss 0.12
+ | Epoch 48, Loss 0.12
+ | Epoch 48, Loss 0.24
+ | Epoch 48, Loss 0.28
+ | train Epoch Loss 0.45
+ | valid Epoch Loss 0.53
+ | Time consuming: 1097.87s
+ | 
+ | Epoch 49/79
+ | --------------------
+ | Epoch 49, Loss 0.17
+ | Epoch 49, Loss 0.06
+ | Epoch 49, Loss 1.25
+ | Epoch 49, Loss 0.25
+ | Epoch 49, Loss 0.10
+ | Epoch 49, Loss 0.19
+ | Epoch 49, Loss 0.17
+ | Epoch 49, Loss 0.16
+ | Epoch 49, Loss 0.15

@@ -105,21 +105,21 @@ def parse():
     ### DATA ###
     parser.add_argument('--trainval_dir', type=str, default="./data/train")
     parser.add_argument('--test_dir', type=str, default="./data/test")
-    parser.add_argument('--nepochs', type=int, default=10,
+    parser.add_argument('--nepochs', type=int, default=100,
                             help="Number of sweeps over the dataset to train.")
-    parser.add_argument('--batch_size', '-b', type=int, default=4,
+    parser.add_argument('--batch_size', type=int, default=4,
                             help="Number of images in each mini-batch.")
-    parser.add_argument('--num_workers', type=int, default=4,
+    parser.add_argument('--num_workers', type=int, default=8,
                             help="Number of data loading threads.")
     parser.add_argument('--no_cuda', action='store_true', default=False,
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.001, 
+    parser.add_argument('--lr', type=float, default=0.01, 
                             help="Learning rate for optimizing method.")
-    parser.add_argument('--lr_stepsize', type=int, default=100, 
+    parser.add_argument('--lr_stepsize', type=int, default=30, 
                             help="When val_loss increases, lr *= lr_decay.")
-    parser.add_argument('--log_freq', type=int, default=10,)
+    parser.add_argument('--log_freq', type=int, default=5,)
     parser.add_argument('--weight_decay', type=float, default=1e-4,
                             help="Goven the regularization term of the neural net.")
 
