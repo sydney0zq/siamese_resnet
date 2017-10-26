@@ -20,12 +20,15 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable
 from torchvision import transforms
 from torch.utils.data import DataLoader
+from torch.optim import lr_scheduler 
 
 from model import SiameseBranchNetwork
 from data.dataset import Pair_Dataset
+from yolo_loss import criterion
 
 def train(args):
     ### DATA ###
+    dataloader = {}
     dataloader["train"] = DataLoader(Pair_Dataset(args.trainval_dir, train=True),
                                   args.batch_size, 
                                   shuffle=True, 
@@ -44,8 +47,8 @@ def train(args):
                                 lr = args.lr,
                                 momentum=0.9,
                                 weight_decay = args.weight_decay)
-    exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=args.lr_stepsize, gamma=0.1)
-    
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_stepsize, gamma=0.1)
+    #criterion = YOLO_loss()
     ### START TO MACHINE LEARNING ###
     tic = time.time()
     best_model_wts = model.state_dict()
@@ -60,7 +63,7 @@ def train(args):
         # Each epoch has a training and validation phase
         for phase in ['train', 'valid']:
             if phase == 'train':
-                scheduler.step()
+                exp_lr_scheduler.step()
                 model.train(True)   # Set model in training mode
             else:
                 model.train(False)
@@ -71,16 +74,17 @@ def train(args):
                 labela, labelb = Variable(labela), Variable(labelb)
                 if args.cuda:
                     inp_ab, inp_ba = inp_ab.cuda(), inp_ba.cuda()
-                    labela, labelb = lablea.cuda(), labelb.cuda()
+                    labela, labelb = labela.cuda(), labelb.cuda()
                 optimizer.zero_grad()
-                pred_ab, pred_ba = model(inp_ab, input_ba)
+                pred_ab, pred_ba = model(inp_ab, inp_ba)
+                
                 loss = criterion(labela, labelb, pred_ab, pred_ba)
                 if phase == "train":
                     loss.backward()
                     optimizer.step()
 
                 if ii % args.log_freq == 0 and phase == "train":
-                    print (" | Epoch {}, Loss {:.2f}".format(epoch, loss))
+                    print (" | Epoch {}, Loss {:.2f}".format(epoch, loss.data[0]))
                 running_loss += loss.data[0]
             epoch_loss = running_loss / (ii+1)
             print (" | {} Epoch Loss {:.2f}".format(phase, epoch_loss)) 
@@ -94,20 +98,6 @@ def train(args):
         print (" | Time consuming: {:.2f}s".format(time.time()-tic))
         print (" | ")
    
-
-
-
-def criterion(labela, labelb, pred_ab, pred_ba):
-    # http://okye062gb.bkt.clouddn.com/2017-10-26-122312.jpg
-    assert(labela.shape == pred_ab.shape or labelb.shape == pred_ba.shape), " | Error, predict shape is not consisent with label shape..."
-    s2 = labela.shape[2]*labela.shape[3]
-    B = int(labela.shape[1]/5)
-    assert(B == 1), " | Error, bounding box for each grid weird..."
-    for
-
-
-
-
 
 
 def parse():

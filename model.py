@@ -19,16 +19,17 @@ class SiameseBranchNetwork(nn.Module):
         super(SiameseBranchNetwork, self).__init__()
         # 7x7 and 512 channels
         self.resnet18 = nn.Sequential(*list(models.resnet18(pretrained=True).children())[:-2])
+        # 512x14x14 feature map
         self.branch1 = nn.Sequential(
-                            nn.Conv2d(512, 20, kernel_size=3, stride=1, padding=1),
+                            nn.Conv2d(512, 20, kernel_size=4, stride=2, padding=0), # to 7x7
                             nn.ReLU(inplace=True),
                             nn.Conv2d(20, 10, kernel_size=3, stride=1, padding=1),
                             nn.ReLU(inplace=True),
                             nn.Conv2d(10, 5, kernel_size=3, stride=1, padding=1))
         self.branch2 = nn.Sequential(
-                            nn.Conv2d(512, 20, kernel_size=3, stride=1, padding=1),
+                            nn.Conv2d(512, 20, kernel_size=4, stride=2, padding=0), 
                             nn.ReLU(inplace=True),
-                            nn.Conv2d(20, 10, kernel_size=3, stride=1, padding=1),
+                            nn.Conv2d(20, 10, kernel_size=3, stride=1, padding=1), 
                             nn.ReLU(inplace=True),
                             nn.Conv2d(10, 5, kernel_size=3, stride=1, padding=1))
 
