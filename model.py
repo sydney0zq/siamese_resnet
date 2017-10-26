@@ -14,9 +14,9 @@ import torch.nn as nn
 import torchvision
 from torchvision import datasets, models, transforms
 
-class SiameseNetwork(nn.Module):
+class SiameseBranchNetwork(nn.Module):
     def __init__(self):
-        super(SiameseNetwork, self).__init__()
+        super(SiameseBranchNetwork, self).__init__()
         # 7x7 and 512 channels
         self.resnet18 = nn.Sequential(*list(models.resnet18(pretrained=True).children())[:-2])
         self.branch1 = nn.Sequential(

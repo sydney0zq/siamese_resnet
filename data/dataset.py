@@ -13,6 +13,7 @@ from torch.utils import data
 import torch
 import os
 from PIL import Image
+from PIL import ImageChops
 from random import shuffle
 import os.path as osp
 from torchvision import transforms as T
@@ -32,16 +33,15 @@ class Pair_Dataset(data.Dataset):
         self.train = train
         self.im_root = im_root
         self.imkey_list = self.get_imkeylist()
-        self.imnum = len(self.imkey_list)
         self.label_shape = label_shape
         self.scale_size = scale_size
         # Separate dataset
         if self.test:
             self.imkey_list = self.imkey_list
         elif self.train:
-            self.imkey_list = self.imkey_list[:int(0.7*self.imnum)]
+            self.imkey_list = self.imkey_list[:int(0.7*len(self.imkey_list))]
         else:
-            self.imkey_list = self.imkey_list[int(0.7*self.imnum):]
+            self.imkey_list = self.imkey_list[int(0.7*len(self.imkey_list)):]
         self.imnum = len(self.imkey_list)
 
         # Transform
@@ -57,12 +57,14 @@ class Pair_Dataset(data.Dataset):
         """
         im_a_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.jpg")
         im_b_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.jpg")
+        im_a, im_b = Image.open(im_a_path), Image.open(im_b_path)
         labela_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.xml")
         labelb_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.xml")
-        im_a = self.transforms(Image.open(im_a_path))
-        im_b = self.transforms(Image.open(im_b_path))
+        diff_ab = self.transforms(ImageChops.subtract(im_a, im_b))
+        diff_ba = self.transforms(ImageChops.subtract(im_b, im_a))
+
         labela, labelb = self.load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
-        return im_a, im_b, labela, labelb
+        return diff_ab, diff_ba, labela, labelb
     
     def load_pair_label(self, labela_path, labelb_path, label_shape, scale_size):   # self unused
         """
@@ -138,39 +140,16 @@ class Pair_Dataset(data.Dataset):
 if __name__ == "__main__":
     train_dataset = Pair_Dataset("/home/zq/diffproj/data/train", train=True)
     trainloader = DataLoader(train_dataset, 
-                             batch_size=1,
+                             batch_size=4,
                              shuffle=True,
                              num_workers=4)
-    print (np.sort(train_dataset.imkey_list))
-    print (len(train_dataset.imkey_list))
+    #print (np.sort(train_dataset.imkey_list))
+    #print (len(train_dataset.imkey_list))
     #exit()
+    #for ii, (im, label) in enumerate(trainloader):
     for ii, (im_a, im_b, labela, labelb) in enumerate(trainloader):
-        print (ii, im_a.size(), im_b.size(), labela.shape, labelb.shape)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        print (ii, im_a.size(), labela.shape, im_b.size(), labelb.shape)
+        print (type(im_a), type(labela))
+        print (labela.shape[2]*labela.shape[3])
+        exit()
 
