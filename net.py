@@ -15,22 +15,26 @@ import torchvision
 from torchvision import datasets, models, transforms
 
 class SiameseNetwork(nn.Module):
-    def __init__(SiameseNetwork, self).__init__():
+    def __init__(self):
+        super(SiameseNetwork, self).__init__()
         # 7x7 and 512 channels
         self.resnet18 = nn.Sequential(*list(models.resnet18(pretrained=True).children())[:-2])
-        self.branch = nn.Sequential(
+        self.branch1 = nn.Sequential(
                             nn.Conv2d(512, 20, kernel_size=3, stride=1, padding=1),
                             nn.ReLU(inplace=True),
                             nn.Conv2d(20, 10, kernel_size=3, stride=1, padding=1),
-                            nn.ReLU(inplace.True),
+                            nn.ReLU(inplace=True),
+                            nn.Conv2d(10, 5, kernel_size=3, stride=1, padding=1))
+        self.branch2 = nn.Sequential(
+                            nn.Conv2d(512, 20, kernel_size=3, stride=1, padding=1),
+                            nn.ReLU(inplace=True),
+                            nn.Conv2d(20, 10, kernel_size=3, stride=1, padding=1),
+                            nn.ReLU(inplace=True),
                             nn.Conv2d(10, 5, kernel_size=3, stride=1, padding=1))
 
-    def forward_once(self, x):
-        output = self.resnet18(x)
-        output = self.branch(output)
-        return output
-    
     def forward(self, input_a, input_b):
-        output_a = self.forward_once(input_a)
-        output_b = self.forward_once(input_b)
+        output_a = self.resnet18(input_a)
+        output_a = self.branch1(output_a)
+        output_b = self.resnet18(input_b)
+        output_b = self.branch2(output_b)
         return output_a, output_b
