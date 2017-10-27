@@ -36,13 +36,11 @@ def criterion_branch(label, pred, s_prob, s_coord):
     pred_sz = [label.size()[0], label.size()[1], label.size()[2], label.size()[3]]
 
     # Manually implement softmax
-    softmax_denominator = Variable(torch.zeros((pred_sz))).cuda().type('torch.cuda.DoubleTensor')
     for i_pair in range(pred_sz[0]):
-        softmax_denominator[i_pair] += torch.sum(torch.exp(pred[i_pair, 0, :, :]))
+        softmax_denominator = torch.sum(torch.exp(pred[i_pair, 0, :, :]))
         for row in range(pred_sz[2]):
             for col in range(pred_sz[3]):
-                pred[i_pair, 0, row, col] = torch.exp(pred[i_pair, 0, row, col]) / softmax_denominator[i_pair]
-
+                pred[i_pair, 0, row, col] = torch.exp(pred[i_pair, 0, row, col]) / softmax_denominator
 
     for i_pair in range(pred_sz[0]):
         for row in range(pred_sz[2]):
