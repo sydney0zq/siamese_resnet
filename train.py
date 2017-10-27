@@ -84,7 +84,7 @@ def train(args):
                     optimizer.step()
 
                 if ii % args.log_freq == 0 and phase == "train":
-                    print (" | Epoch {}/{}, Loss {:.2f}".format(ii, epoch, loss.data[0]))
+                    print (" | Epoch{}: {}, Loss {:.2f}".format(epoch, ii, loss.data[0]))
                 running_loss += loss.data[0]
             epoch_loss = running_loss / (ii+1)
             print (" | Epoch {} {} Loss {:.4f}".format(epoch, phase, epoch_loss)) 
@@ -115,11 +115,11 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.001, 
+    parser.add_argument('--lr', type=float, default=0.01, 
                             help="Learning rate for optimizing method.")
-    parser.add_argument('--lr_stepsize', type=int, default=30, 
-                            help="When val_loss increases, lr *= lr_decay.")
-    parser.add_argument('--log_freq', type=int, default=5,)
+    parser.add_argument('--lr_stepsize', type=int, default=20, 
+                            help="Control exponent learning rate decay..")
+    parser.add_argument('--log_freq', type=int, default=2)
     # As a rule of thumb, the more training examples you have, the weaker this term should be. 
     # The more parameters you have the higher this term should be.
     parser.add_argument('--weight_decay', type=float, default=1e-3,

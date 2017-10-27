@@ -82,10 +82,7 @@ def evaluate(args):
 
 def f2s(x):
     return str(float(x))
-def softmax(x):
-    """Compute softmax values for each sets of scores in x."""
-    e_x = np.exp(x - np.max(x))
-    return e_x / e_x.sum()
+
 
 
 def parse_det(label, pred, imkey, imsize, scale_size=512):
