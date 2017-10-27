@@ -59,11 +59,16 @@ def evaluate(args):
     for ii, (index, diff_ab, diff_ba, labela, labelb) in enumerate(dataloader["test"]):
         inp_ab, inp_ba = Variable(diff_ab), Variable(diff_ba)
         labela, labelb = Variable(labela), Variable(labelb)
+        print ("imkey", imkey_list[index[0]])
+        print ("labela", labela)
         if args.cuda:
             inp_ab, inp_ba = inp_ab.cuda(), inp_ba.cuda()
             labela, labelb = labela.cuda(), labelb.cuda()
         pred_ab, pred_ba = model(inp_ab, inp_ba)
         loss = criterion(labela, labelb, pred_ab, pred_ba)
+        print (pred_ab)
+        print (loss.data[0])
+        exit()
 
         imsize = getimsize(imkey_list[index[0]], args.test_dir)
         fa.write(parse_det(labela, pred_ab, imkey_list[index[0]], imsize))
@@ -98,6 +103,7 @@ def parse_det(label, pred, imkey, imsize, scale_size=512):
     # 1, x, y, w, h -- normalized
     s2xB = label.size()[2] * label.size()[3] * 1
     ow, oh = imsize
+
 #    det_sort[:, 0] = softmax(det_sort[:, 0])
 
     for i in range(len(det_sort)):
@@ -108,6 +114,12 @@ def parse_det(label, pred, imkey, imsize, scale_size=512):
         orix, oriy = int(detx/sw), int(dety/sh)
         oriw, orih = int(detw/sw), int(deth/sh)
         det_sort[i, 1:] = orix, oriy, oriw, orih
+    if True:
+        print (ow, oh)
+        print ("imkey", imkey)
+        print ((detx-detw/2)/sw, (dety-deth/2)/sh, (detx+detw/2)/sw, (dety+deth/2)/sh)
+        print ("sw, sh", sw, sh)
+        exit()
 
     # Extract nbbox results
     det_str = ""

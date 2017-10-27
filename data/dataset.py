@@ -24,7 +24,6 @@ import xml.etree.ElementTree as ET
 def constrain(val, min_val, max_val):
     return min(max_val, max(min_val, val))
 
-
 class Pair_Dataset(data.Dataset):
 
     def __init__(self, im_root, scale_size=512, label_shape=(5, 7, 7), transforms=None, train=True, test=False):
@@ -58,18 +57,18 @@ class Pair_Dataset(data.Dataset):
         im_a_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.jpg")
         im_b_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.jpg")
         im_a, im_b = Image.open(im_a_path), Image.open(im_b_path)
+
         labela_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.xml")
         labelb_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.xml")
+        labela, labelb = self.load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
+
         diff_ab = self.transforms(ImageChops.subtract(im_a, im_b))
         diff_ba = self.transforms(ImageChops.subtract(im_b, im_a))
 
-        labela, labelb = self.load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
         return index, diff_ab, diff_ba, labela, labelb
     
-    def load_pair_label(self, labela_path, labelb_path, label_shape, scale_size):   # self unused
-        """
-        Return normalized groundtruth bboxes space.
-        """
+    def load_pair_label(self, labela_path, labelb_path, label_shape, scale_size):
+        """ Return normalized groundtruth bboxes space. """
         labela = self.get_label(labela_path, label_shape, scale_size)
         labelb = self.get_label(labelb_path, label_shape, scale_size)
         return labela, labelb
@@ -95,10 +94,10 @@ class Pair_Dataset(data.Dataset):
                             (t_boxes[3] - t_boxes[1])*1.0/oh])    # norm h
             # scale and correct boxes(cuz we resize input images to scale_size*scale_size)
             for i in range(len(boxes)):
-                left = (boxes[i][1] - boxes[i][3] / 2) * sx       # left mid point
-                right = (boxes[i][1] + boxes[i][3] / 2) * sx      # right mid point
-                top = (boxes[i][2] - boxes[i][4] / 2) * sy        # top mid point
-                bottom = (boxes[i][2] + boxes[i][4] / 2) * sy     # bottom mid point
+                left = (boxes[i][1] - boxes[i][3] / 2.0) * sx       # left mid point
+                right = (boxes[i][1] + boxes[i][3] / 2.0) * sx      # right mid point
+                top = (boxes[i][2] - boxes[i][4] / 2.0) * sy        # top mid point
+                bottom = (boxes[i][2] + boxes[i][4] / 2.0) * sy     # bottom mid point
                 left = constrain(0, 1, left)
                 right = constrain(0, 1, right)
                 top = constrain(0, 1, top)
@@ -138,9 +137,9 @@ class Pair_Dataset(data.Dataset):
 
 
 if __name__ == "__main__":
-    train_dataset = Pair_Dataset("/home/zq/diffproj/data/train", train=True)
+    train_dataset = Pair_Dataset("./test", test=True)
     trainloader = DataLoader(train_dataset, 
-                             batch_size=4,
+                             batch_size=1,
                              shuffle=True,
                              num_workers=4)
     #print (np.sort(train_dataset.imkey_list))
