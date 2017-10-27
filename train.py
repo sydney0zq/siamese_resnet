@@ -48,7 +48,7 @@ def train(args):
                                 momentum=0.9,
                                 weight_decay = args.weight_decay)
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_stepsize, gamma=0.1)
-    #criterion = YOLO_loss()
+
     ### START TO MACHINE LEARNING ###
     tic = time.time()
     best_model_wts = model.state_dict()
@@ -69,7 +69,7 @@ def train(args):
                 model.train(False)
 
             running_loss = 0
-            for ii, (diff_ab, diff_ba, labela, labelb) in enumerate(dataloader[phase]):
+            for ii, (index, diff_ab, diff_ba, labela, labelb) in enumerate(dataloader[phase]):
                 inp_ab, inp_ba = Variable(diff_ab), Variable(diff_ba)
                 labela, labelb = Variable(labela), Variable(labelb)
                 if args.cuda:
@@ -84,10 +84,10 @@ def train(args):
                     optimizer.step()
 
                 if ii % args.log_freq == 0 and phase == "train":
-                    print (" | Epoch {}, Loss {:.2f}".format(epoch, loss.data[0]))
+                    print (" | Epoch {}/{}, Loss {:.2f}".format(ii, epoch, loss.data[0]))
                 running_loss += loss.data[0]
             epoch_loss = running_loss / (ii+1)
-            print (" | {} Epoch Loss {:.2f}".format(phase, epoch_loss)) 
+            print (" | Epoch {} {} Loss {:.4f}".format(epoch, phase, epoch_loss)) 
 
             # Deep copy of the model
             if phase == 'valid' and best_loss >= epoch_loss:
@@ -95,7 +95,7 @@ def train(args):
                 best_model_wts = model.state_dict()
                 torch.save(best_model_wts, "./model_best.pth.tar")
                 print (" | Epoch {} state saved, now loss reaches {}...".format(epoch, best_loss))
-        print (" | Time consuming: {:.2f}s".format(time.time()-tic))
+        print (" | Time consuming: {:.4f}s".format(time.time()-tic))
         print (" | ")
    
 
@@ -107,7 +107,7 @@ def parse():
     parser.add_argument('--test_dir', type=str, default="./data/test")
     parser.add_argument('--nepochs', type=int, default=100,
                             help="Number of sweeps over the dataset to train.")
-    parser.add_argument('--batch_size', type=int, default=4,
+    parser.add_argument('--batch_size', type=int, default=8,
                             help="Number of images in each mini-batch.")
     parser.add_argument('--num_workers', type=int, default=8,
                             help="Number of data loading threads.")
@@ -115,12 +115,14 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.01, 
+    parser.add_argument('--lr', type=float, default=0.001, 
                             help="Learning rate for optimizing method.")
     parser.add_argument('--lr_stepsize', type=int, default=30, 
                             help="When val_loss increases, lr *= lr_decay.")
     parser.add_argument('--log_freq', type=int, default=5,)
-    parser.add_argument('--weight_decay', type=float, default=1e-4,
+    # As a rule of thumb, the more training examples you have, the weaker this term should be. 
+    # The more parameters you have the higher this term should be.
+    parser.add_argument('--weight_decay', type=float, default=1e-3,
                             help="Goven the regularization term of the neural net.")
 
     args = parser.parse_args()

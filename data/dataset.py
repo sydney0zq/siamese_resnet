@@ -64,7 +64,7 @@ class Pair_Dataset(data.Dataset):
         diff_ba = self.transforms(ImageChops.subtract(im_b, im_a))
 
         labela, labelb = self.load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
-        return diff_ab, diff_ba, labela, labelb
+        return index, diff_ab, diff_ba, labela, labelb
     
     def load_pair_label(self, labela_path, labelb_path, label_shape, scale_size):   # self unused
         """

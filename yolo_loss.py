@@ -28,7 +28,7 @@ How to get value from GPU RAM
     And you probably know the rest... So basically a.data.cpu().numpy()[0] will give you just the value
 """
 
-def criterion_branch(label, pred):
+def criterion_branch(label, pred, s_prob, s_coord):
     assert(label.size() == pred.size()), " | Error, predict size is not consisent with label size..."
     B = int(label.size()[1]/5)
     pred = pred.type('torch.cuda.DoubleTensor') 
@@ -39,24 +39,23 @@ def criterion_branch(label, pred):
             for col in range(label.size()[3]):
                 if label[i_pair, 0, row, col].data[0]:
                     prob_diff = label[i_pair, 0, row, col] - pred[i_pair, 0, row, col]
-                    loss += torch.mul(prob_diff, prob_diff)
+                    loss += torch.mul(prob_diff, prob_diff)*s_prob
                    # print ("loss stage1", loss)
                     diff_xy = label[i_pair, 1:3, row, col] - pred[i_pair, 1:3, row, col]
-                    loss += torch.sum(torch.mul(diff_xy, diff_xy))
+                    loss += torch.sum(torch.mul(diff_xy, diff_xy))*s_coord
                    # print ("loss stage2", loss)
                     #sqrt_diff_wh = torch.sqrt(labela[i_pair, 3:5, row, col]) - torch.sqrt(pred_ab[i_pair, 3:5, row, col])
                     sqrt_diff_wh = label[i_pair, 3:5, row, col] - pred[i_pair, 3:5, row, col]
                    # print ("sqrt_diff_wh", sqrt_diff_wh)
-                    loss += torch.sum(torch.mul(sqrt_diff_wh, sqrt_diff_wh))
+                    loss += torch.sum(torch.mul(sqrt_diff_wh, sqrt_diff_wh))*s_coord
     loss = loss/label.size()[0]
     return loss
 
-def criterion(labela, labelb, pred_ab, pred_ba):
+def criterion(labela, labelb, pred_ab, pred_ba, s_prob=1, s_coord=5):
     # http://okye062gb.bkt.clouddn.com/2017-10-26-122312.jpg
-    loss1 = criterion_branch(labela, pred_ab)
-    loss2 = criterion_branch(labelb, pred_ba)
+    loss1 = criterion_branch(labela, pred_ab, s_prob, s_coord)
+    loss2 = criterion_branch(labelb, pred_ba, s_prob, s_coord)
     return (loss1+loss2) / 2
-
 
 
 if __name__ == "__main__":
