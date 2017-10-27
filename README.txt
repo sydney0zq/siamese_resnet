@@ -22,7 +22,11 @@ README.txt
 =======2017-10-27 20:35(Friday)=======
 Some details about the ground truth label and predict result format:
 
-Load pair label by dataloader:
-    midx, midy, w, h
-Detection result:
-    midx, midy, w, h
+1.
+    Load pair label by dataloader:
+        midx, midy, w, h
+    Detection result:
+        midx, midy, w, h
+2.
+    imkey should be an integer
+
