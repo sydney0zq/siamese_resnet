@@ -116,11 +116,53 @@ def parse_det(label, pred, imkey, imsize, scale_size=512):
         det_str += "\n"
     
     det_list = []
-    #for i in range(n_bbox):
-    for i in range(s2xB):
+    for i in range(n_bbox):
+    #for i in range(s2xB):
         det_list.append(det_sort[s2xB-i-1, :].tolist())
 
     return det_str, det_list, gd_list
+
+
+### CALCULATE IOU ###
+"""
+A criterion to calculate the score we get.
+You should never apply it to loss function, beacause it has many dependices.
+"""
+
+def cal_iou(boxA, boxB):
+    # determine the (x, y)-coordinates of the intersection rectangle
+    # and compute the area of intersection rectangle
+    xA = max(boxA[0], boxB[0])
+    yA = max(boxA[1], boxB[1])
+    xB = min(boxA[2], boxB[2])
+    yB = min(boxA[3], boxB[3])
+    interArea = (xB - xA) * (yB - yA)
+
+    # compute the area of both the prediction and ground-truth rectangles
+    boxAArea = (boxA[2] - boxA[0]) * (boxA[3] - boxA[1])
+    boxBArea = (boxB[2] - boxB[0]) * (boxB[3] - boxB[1])
+
+    # compute the intersection over union by taking the intersection
+    # area and dividing it by the sum of prediction + ground-truth
+    # areas - the interesection area
+    if boxAArea <= 0 or boxBArea <= 0 or interArea <= 0:
+        iou = 0
+    else:
+        iou = interArea / float(boxAArea + boxBArea - interArea)
+
+    # return the intersection over union value
+    return iou
+
+
+def ave_iou(detlist, gdlist):
+    # The two list are both in midx, midy, w, h in original size
+    ave_iou = np.zeros((len(gdlist)))
+    for ii, i_gd in enumerate(gdlist):
+        for jj, i_det in enumerate(detlist):
+            ave_iou[ii] += cal_iou(i_gd, i_det)
+        ave_iou[ii] = ave_iou[ii] / (jj+1.0)
+    return ave_iou
+
 
 if __name__ == "__main__":
     im = Image.open("./data/test/00589_a.jpg")

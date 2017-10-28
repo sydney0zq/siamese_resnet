@@ -22,7 +22,6 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 
-#from model.model_simple import SiameseBranchNetwork
 from model.model import SiameseBranchNetwork
 from data.dataset import Pair_Dataset
 from yolo_loss import criterion
@@ -116,7 +115,7 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.001, 
+    parser.add_argument('--lr', type=float, default=0.005, 
                             help="Learning rate for optimizing method.")
     parser.add_argument('--lr_stepsize', type=int, default=20, 
                             help="Control exponent learning rate decay..")

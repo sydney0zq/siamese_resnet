@@ -46,15 +46,15 @@ class Pair_Dataset(data.Dataset):
 
         # Transform
         if transforms is None:
-            # NOTE 我认为这个归一化的数字对于这个任务没有意义
+            # NOTE 我认为这个归一化的数字对于这个任务假如使用差值图像输入没有任何意义
             # 并且在ToTensor这个类中已经实现了0~1的映射
             normalize = T.Normalize(mean=[0.485, 0.456, 0.406],
                                     std =[0.229, 0.224, 0.225])
             # No enhancement on training and validating set
             self.transforms = T.Compose([T.Scale((scale_size, scale_size)), 
                                          T.CenterCrop((scale_size, scale_size)),
-                                         T.ToTensor(), normalize]) #T.RandomHorizontalFlip(),
-                                         #T.ToTensor()]) #T.RandomHorizontalFlip(),
+                                         T.ToTensor()]) #T.RandomHorizontalFlip(),
+                                         #T.ToTensor(), normalize]) #T.RandomHorizontalFlip(),
 
     def __getitem__(self, index):
         """
@@ -70,11 +70,11 @@ class Pair_Dataset(data.Dataset):
         labelb_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.xml")
         labela, labelb = self.load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
 
-        diff_ab = self.transforms(im_a)
-        diff_ba = self.transforms(im_b)
+        #diff_ab = self.transforms(im_a)
+        #diff_ba = self.transforms(im_b)
         
-        #diff_ab = self.transforms(ImageChops.subtract(im_a, im_b))
-        #diff_ba = self.transforms(ImageChops.subtract(im_b, im_a))
+        diff_ab = self.transforms(ImageChops.subtract(im_a, im_b))
+        diff_ba = self.transforms(ImageChops.subtract(im_b, im_a))
         
         """
         dab = diff_ab.numpy()

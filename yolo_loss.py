@@ -60,7 +60,7 @@ def criterion_branch(label, pred, s_prob, s_coord):
     loss = loss/label.size()[0]
     return loss
 
-def criterion(labela, labelb, pred_ab, pred_ba, s_prob=1, s_coord=5):
+def criterion(labela, labelb, pred_ab, pred_ba, s_prob=5, s_coord=1):
     # http://okye062gb.bkt.clouddn.com/2017-10-26-122312.jpg
     loss1 = criterion_branch(labela, pred_ab, s_prob, s_coord)
     loss2 = criterion_branch(labelb, pred_ba, s_prob, s_coord)

@@ -24,13 +24,12 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 import xml.etree.ElementTree as ET
 
-#from model.model_simple import SiameseBranchNetwork
 from model.model import SiameseBranchNetwork
 from data.dataset import Pair_Dataset
 from yolo_loss import criterion
 import os.path as osp
 
-from utils import getimsize, detrender, labelrender, parse_det
+from utils import getimsize, detrender, labelrender, parse_det, ave_iou
 
 def evaluate(args):
     ### DATA ###
@@ -73,8 +72,11 @@ def evaluate(args):
         
         imkey = int(imkey_list[index[0]])
         imsize = getimsize(args.test_dir, imkey)
+        # deta_crd and gda_crd are both (midx, midy, w, h)
         deta_str, deta_crd, gda_crd = parse_det(labela, pred_ab, imkey, imsize)
         detb_str, detb_crd, gdb_crd = parse_det(labelb, pred_ba, imkey, imsize)
+        print (ave_iou(deta_crd, gda_crd))
+        print (ave_iou(detb_crd, gdb_crd))
 
         # Write str to det files
         fa.write(deta_str), fb.write(detb_str)
