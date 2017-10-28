@@ -69,6 +69,7 @@ def getimsize(im_root, imkey, scale_size=512):
     return (ow, oh)
 
 def parse_det(label, pred, imkey, imsize, scale_size=512):
+    #det result: 1, x, y, w, h -- normalized
     n_bbox = 0
     label_sz = label.size()[:]
     gd_list = []
@@ -83,7 +84,6 @@ def parse_det(label, pred, imkey, imsize, scale_size=512):
                 det = np.vstack((det, pred[0, :, row, col].data.cpu().numpy()))
 
     det_sort = np.sort(det, axis=0)
-    # 1, x, y, w, h -- normalized
     s2xB = label_sz[2] * label_sz[3] * 1
     ow, oh = imsize
     sw, sh = float(scale_size)/ow, float(scale_size)/oh
@@ -107,7 +107,7 @@ def parse_det(label, pred, imkey, imsize, scale_size=512):
         gdw,  gdh = int(gdw/sw), int(gdh/sh)
         gd_list[i][:] = gdx, gdy, gdw, gdh
 
-    # Extract nbbox results
+    # Extract nbbox results(most high prob)
     det_str = ""
     for i in range(n_bbox):
         det_str += "{:05d}".format(imkey) + " "

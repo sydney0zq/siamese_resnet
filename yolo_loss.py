@@ -68,7 +68,6 @@ def criterion(labela, labelb, pred_ab, pred_ba, s_prob=1, s_coord=5):
 
 
 if __name__ == "__main__":
-    loss = YOLO_loss()
     labela = np.zeros((1, 5, 1, 1))
     labela[0, 0, 0, 0] = 1
     labela[0, 1, 0, 0] = 10
