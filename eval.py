@@ -24,7 +24,8 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 import xml.etree.ElementTree as ET
 
-from model import SiameseBranchNetwork
+#from model.model_simple import SiameseBranchNetwork
+from model.model import SiameseBranchNetwork
 from data.dataset import Pair_Dataset
 from yolo_loss import criterion
 import os.path as osp
@@ -89,7 +90,6 @@ def evaluate(args):
 
 def parse():
     parser = argparse.ArgumentParser()
-    ### DATA ###
     parser.add_argument('--test_dir', type=str, default="./data/test")
     parser.add_argument('--num_workers', type=int, default=8,
                             help="Number of data loading threads.")
@@ -109,7 +109,6 @@ def parse():
     
     #print('Args: {}'.format(args))
     return args
-
 
 if __name__ == "__main__":
     args = parse()

@@ -31,6 +31,9 @@ def detrender(srcdir, imkey, deta_crd, detb_crd, resdir, color="red"):
     im_b.save(osp.join(resdir, "{:05d}".format(imkey)+"_render_b.jpg"))
 
 def labelrender(resdir, imkey, gda_crd, gdb_crd, color="green"):
+    #print ("imkey", imkey)
+    #print ("gda_crd", gda_crd)
+    #print ("gdb_crd", gdb_crd)
     im_ra = Image.open(osp.join(resdir, "{:05d}".format(imkey)+"_render_a.jpg"))
     im_rb = Image.open(osp.join(resdir, "{:05d}".format(imkey)+"_render_b.jpg"))
     for i_gd in gda_crd:
@@ -52,7 +55,6 @@ def draw_bbox(im, bbox, color="red"):
     draw_im.line([xmax, ymin, xmax, ymax], fill=color)
     draw_im.line([xmin, ymax, xmax, ymax], fill=color)
     del draw_im
-    return im
 
 def getimsize(im_root, imkey, scale_size=512):
     assert (type(imkey) == type(1)), " | Error: imkey shold be an integer..."
@@ -114,7 +116,8 @@ def parse_det(label, pred, imkey, imsize, scale_size=512):
         det_str += "\n"
     
     det_list = []
-    for i in range(n_bbox):
+    #for i in range(n_bbox):
+    for i in range(s2xB):
         det_list.append(det_sort[s2xB-i-1, :].tolist())
 
     return det_str, det_list, gd_list

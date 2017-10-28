@@ -22,7 +22,8 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 
-from model import SiameseBranchNetwork
+#from model.model_simple import SiameseBranchNetwork
+from model.model import SiameseBranchNetwork
 from data.dataset import Pair_Dataset
 from yolo_loss import criterion
 
@@ -107,19 +108,19 @@ def parse():
     parser.add_argument('--test_dir', type=str, default="./data/test")
     parser.add_argument('--nepochs', type=int, default=100,
                             help="Number of sweeps over the dataset to train.")
-    parser.add_argument('--batch_size', type=int, default=8,
+    parser.add_argument('--batch_size', type=int, default=4,
                             help="Number of images in each mini-batch.")
-    parser.add_argument('--num_workers', type=int, default=8,
+    parser.add_argument('--num_workers', type=int, default=4,
                             help="Number of data loading threads.")
     parser.add_argument('--no_cuda', action='store_true', default=False,
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.01, 
+    parser.add_argument('--lr', type=float, default=0.001, 
                             help="Learning rate for optimizing method.")
     parser.add_argument('--lr_stepsize', type=int, default=20, 
                             help="Control exponent learning rate decay..")
-    parser.add_argument('--log_freq', type=int, default=2)
+    parser.add_argument('--log_freq', type=int, default=20)
     # As a rule of thumb, the more training examples you have, the weaker this term should be. 
     # The more parameters you have the higher this term should be.
     parser.add_argument('--weight_decay', type=float, default=1e-3,
@@ -135,7 +136,4 @@ def parse():
 if __name__ == "__main__":
     args = parse()
     train(args)
-
-
-
 

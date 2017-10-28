@@ -29,4 +29,5 @@ Some details about the ground truth label and predict result format:
         midx, midy, w, h
 2.
     imkey should be an integer
-
+3.
+    Model should be not pretrained

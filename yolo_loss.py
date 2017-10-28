@@ -32,12 +32,13 @@ def criterion_branch(label, pred, s_prob, s_coord):
     assert(label.size() == pred.size()), " | Error, predict size is not consisent with label size..."
     B = int(label.size()[1]/5)
     pred = pred.type('torch.cuda.DoubleTensor') 
-    loss = Variable(torch.zeros((1))).cuda().type('torch.cuda.DoubleTensor')
+    loss = Variable(torch.zeros((1)), requires_grad=True).cuda().type('torch.cuda.DoubleTensor')
     pred_sz = [label.size()[0], label.size()[1], label.size()[2], label.size()[3]]
 
     # Manually implement softmax
     for i_pair in range(pred_sz[0]):
         softmax_denominator = torch.sum(torch.exp(pred[i_pair, 0, :, :]))
+        #print (softmax_denominator)
         for row in range(pred_sz[2]):
             for col in range(pred_sz[3]):
                 pred[i_pair, 0, row, col] = torch.exp(pred[i_pair, 0, row, col]) / softmax_denominator
@@ -47,6 +48,7 @@ def criterion_branch(label, pred, s_prob, s_coord):
             for col in range(pred_sz[3]):
                 if label[i_pair, 0, row, col].data[0]:
                     prob_diff = label[i_pair, 0, row, col] - pred[i_pair, 0, row, col]
+                   # print (prob_diff)
                     loss += torch.mul(prob_diff, prob_diff)*s_prob
                    # print ("loss stage1", loss)
                     diff_xy = label[i_pair, 1:3, row, col] - pred[i_pair, 1:3, row, col]
@@ -54,7 +56,6 @@ def criterion_branch(label, pred, s_prob, s_coord):
                    # print ("loss stage2", loss)
                     #sqrt_diff_wh = torch.sqrt(labela[i_pair, 3:5, row, col]) - torch.sqrt(pred_ab[i_pair, 3:5, row, col])
                     sqrt_diff_wh = label[i_pair, 3:5, row, col] - pred[i_pair, 3:5, row, col]
-                   # print ("sqrt_diff_wh", sqrt_diff_wh)
                     loss += torch.sum(torch.mul(sqrt_diff_wh, sqrt_diff_wh))*s_coord*1.414
     loss = loss/label.size()[0]
     return loss
