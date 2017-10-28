@@ -67,8 +67,8 @@ def evaluate(args):
         pred_ab, pred_ba = model(inp_ab, inp_ba)
         loss = criterion(labela, labelb, pred_ab, pred_ba)
         running_loss += loss.data[0]
-        print (" | Eval {} Loss {:.2f}".format(ii+1, loss.data[0])) 
-        print (" | Now start to generate detection files and render results...")
+        #print (" | Eval {} Loss {:.2f}".format(ii+1, loss.data[0])) 
+        #print (" | Now start to generate detection files and render results...")
         
         imkey = int(imkey_list[index[0]])
         imsize = getimsize(args.test_dir, imkey)

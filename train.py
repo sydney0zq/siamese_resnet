@@ -24,7 +24,7 @@ from torch.optim import lr_scheduler
 
 from model.model import SiameseBranchNetwork
 from data.dataset import Pair_Dataset
-from yolo_loss import criterion
+from loss import criterion
 
 def train(args):
     ### DATA ###
