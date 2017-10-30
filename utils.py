@@ -20,6 +20,64 @@ import xml.etree.ElementTree as ET
 floor = lambda x: math.floor(float(x))
 f2s = lambda x: str(float(x))
 
+
+def parse_det(label, pred, imkey, imsize, label_pos):
+    #det result: 1, x, y, w, h -- normalized
+    assert (label_pos == 0 or label_pos==1), " | Error: label_pos in parse_det function illegal..."
+    n_bbox, lsz = 0, label.size()[:]
+    gd_list, det = [], np.array([])
+    lbound, rbound = 2+label_pos*4, 2+label_pos*4+4
+    ow, oh = imsize
+
+    for row in range(lsz[2]):
+        for col in range(lsz[3]):
+            # We only have one instance each time at evalution stage
+            if label[0, label_pos, row, col].data[0]:
+                n_bbox += 1
+                gd_list.append(label[0, lbound:rbound, row, col].data.cpu().numpy().tolist()) 
+                
+                ### Get out the corrsponding prediction bbox
+                if n_bbox == 1:
+                    det = pred[0, lbound:rbound, row, col].data.cpu().numpy().reshape(1, 5)
+                else:
+                    det = np.vstack((det, pred[0, lbound:rbound, row, col].data.cpu().numpy()))
+
+            """
+            if row == 0 and col == 0:
+                det = pred[0, :, row, col].data.cpu().numpy().reshape(1, 5)
+            else:
+                det = np.vstack((det, pred[0, :, row, col].data.cpu().numpy()))
+            """
+    det_len = det.shape[0]
+
+    for i in range(det_len):
+        # detx means det_midx; dety means det_midy
+        # Recover to origin size
+        detx, dety, detw, deth = det[i, 1:]
+        orix, oriy = int(detx*ow), int(dety*oh)
+        oriw, orih = int(detw*ow), int(deth*oh)
+        det[i, 1:] = orix, oriy, oriw, orih
+
+    for i in range(n_bbox):
+        gdx, gdy, gdw, gdh = gd_list[i][:]
+        gdx,  gdy  = ow*gdx, oh*gdy
+        gdw,  gdh  = ow*gdw, oh*gdh
+        gd_list[i][:] = gdx, gdy, gdw, gdh
+
+    det_str, det_list = "", []
+    for i in range(det_len):
+        det_str += "{:05d}".format(imkey) + " "
+        for j in range(label_sz[1]):
+            det_str += f2s(det[det_len-i-1, j]) + " "
+        det_str += "\n"
+
+        det_list.append(det[det_len-i-1, :].tolist())
+
+    return det_str, det_list, gd_list
+
+
+### RENDER AREA ###
+""" All Renders receive list format result """
 def detrender(srcdir, imkey, deta_crd, detb_crd, resdir, color="red"):
     im_a = Image.open(osp.join(srcdir, "{:05d}".format(imkey)+"_a.jpg"))
     im_b = Image.open(osp.join(srcdir, "{:05d}".format(imkey)+"_b.jpg"))
@@ -31,9 +89,6 @@ def detrender(srcdir, imkey, deta_crd, detb_crd, resdir, color="red"):
     im_b.save(osp.join(resdir, "{:05d}".format(imkey)+"_render_b.jpg"))
 
 def labelrender(resdir, imkey, gda_crd, gdb_crd, color="green"):
-    #print ("imkey", imkey)
-    #print ("gda_crd", gda_crd)
-    #print ("gdb_crd", gdb_crd)
     im_ra = Image.open(osp.join(resdir, "{:05d}".format(imkey)+"_render_a.jpg"))
     im_rb = Image.open(osp.join(resdir, "{:05d}".format(imkey)+"_render_b.jpg"))
     for i_gd in gda_crd:
@@ -43,9 +98,8 @@ def labelrender(resdir, imkey, gda_crd, gdb_crd, color="green"):
     im_ra.save(osp.join(resdir, "{:05d}".format(imkey)+"_render_a.jpg"))
     im_rb.save(osp.join(resdir, "{:05d}".format(imkey)+"_render_b.jpg"))
 
-
 def draw_bbox(im, bbox, color="red"):
-    # bbox should in midx, midy, w, h format
+    # bbox should in midx, midy, w, h list format
     draw_im = ImageDraw.Draw(im)
     midx, midy, w, h = bbox[:]
     xmin, ymin = floor(midx - w/2.0), floor(midy - h/2.0)
@@ -56,7 +110,7 @@ def draw_bbox(im, bbox, color="red"):
     draw_im.line([xmin, ymax, xmax, ymax], fill=color)
     del draw_im
 
-def getimsize(im_root, imkey, scale_size=512):
+def getimsize(im_root, imkey):
     assert (type(imkey) == type(1)), " | Error: imkey shold be an integer..."
     if osp.exists(osp.join(im_root, "{:05d}".format(imkey)+"_a.xml")):
         xmlpath = osp.join(im_root, "{:05d}".format(imkey)+"_a.xml")
@@ -67,68 +121,6 @@ def getimsize(im_root, imkey, scale_size=512):
     ow = int(im_size.find("width").text)
     oh = int(im_size.find("height").text)
     return (ow, oh)
-
-
-
-
-
-
-
-def parse_det(label, pred, imkey, imsize, scale_size=512):
-    #det result: 1, x, y, w, h -- normalized
-    n_bbox = 0
-    label_sz = label.size()[:]
-    gd_list = []
-    det = []
-    for row in range(label_sz[2]):
-        for col in range(label_sz[3]):
-            if label[0, 0, row, col].data[0]:
-                n_bbox += 1
-                gd_list.append(label[0, 1:, row, col].data.cpu().numpy().tolist()) 
-            if row == 0 and col == 0:
-                det = pred[0, :, row, col].data.cpu().numpy()
-            else:
-                det = np.vstack((det, pred[0, :, row, col].data.cpu().numpy()))
-
-    det_sort = np.sort(det, axis=0)
-    s2xB = label_sz[2] * label_sz[3] * 1
-    ow, oh = imsize
-    sw, sh = float(scale_size)/ow, float(scale_size)/oh
-
-    for i in range(len(det_sort)):
-        # detx --> det_midx; dety --> det_midy
-        detx, dety, detw, deth = det_sort[i, 1:]
-        detx, dety = scale_size*detx, scale_size*dety
-        detw, deth = scale_size*detw, scale_size*deth
-
-        orix, oriy = int(detx/sw), int(dety/sh)
-        oriw, orih = int(detw/sw), int(deth/sh)
-
-        det_sort[i, 1:] = orix, oriy, oriw, orih
-
-    for i in range(n_bbox):
-        gdx, gdy, gdw, gdh = gd_list[i][:]
-        gdx,  gdy  = scale_size*gdx, scale_size*gdy
-        gdw,  gdh  = scale_size*gdw, scale_size*gdh
-        gdx,  gdy  = int(gdx/sw),  int(gdy/sh)
-        gdw,  gdh = int(gdw/sw), int(gdh/sh)
-        gd_list[i][:] = gdx, gdy, gdw, gdh
-
-    # Extract nbbox results(most high prob)
-    det_str = ""
-    for i in range(n_bbox):
-        det_str += "{:05d}".format(imkey) + " "
-        for j in range(label_sz[1]):
-            det_str += f2s(det_sort[s2xB-i-1, j]) + " "
-        det_str += "\n"
-    
-    det_list = []
-    for i in range(n_bbox):
-    #for i in range(s2xB):
-        det_list.append(det_sort[s2xB-i-1, :].tolist())
-
-    return det_str, det_list, gd_list
-
 
 ### CALCULATE IOU ###
 """

@@ -31,7 +31,7 @@ class DiffNetwork(nn.Module):
                             nn.ReLU(inplace=True),
                             nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1),
                             nn.ReLU(inplace=True),
-                            nn.Conv2d(32, 5, kernel_size=3, stride=1, padding=1))
+                            nn.Conv2d(32, 10, kernel_size=3, stride=1, padding=1))
 
     def forward(self, inputa, inputb):
         outputa = self.resnet18(inputa)

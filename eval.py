@@ -29,8 +29,7 @@ from data.dataset import Pair_Dataset
 from loss import criterion
 import os.path as osp
 
-#from utils import getimsize, detrender, labelrender, parse_det, ave_iou
-from utils_test import getimsize, detrender, labelrender, parse_det, ave_iou
+from utils import getimsize, detrender, labelrender, parse_det, ave_iou
 
 def evaluate(args):
     ### DATA ###
@@ -55,7 +54,8 @@ def evaluate(args):
     ### START TO EUALUATE ###
     tic = time.time()
     running_loss = 0
-    f = open(args.det_fn, "w")
+    fa = open(args.deta_fn, "w")
+    fb = open(args.detb_fn, "w")
 
     for ii, (index, im_a, im_b, label) in enumerate(dataloader["test"]):
         # Evaluation
@@ -73,17 +73,18 @@ def evaluate(args):
         imkey = int(imkey_list[index[0]])
         imsize = getimsize(args.test_dir, imkey)
         # deta_crd and gda_crd are both (midx, midy, w, h)
-        #deta_str, deta_crd, gda_crd = parse_det(labela, pred_ab, imkey, imsize)
-        detstr, detcrd, gdcrd = parse_det(label, pred, imkey, imsize)
+        deta_str, deta_crd, gda_crd = parse_det(labela, pred_ab, imkey, imsize, 0)
+        detb_str, detb_crd, gdb_crd = parse_det(labela, pred_ab, imkey, imsize, 1)
         #print (ave_iou(deta_crd, gda_crd))
         #print (ave_iou(detb_crd, gdb_crd))
 
         # Write str to det files
-        f.write(detstr)
+        fa.write(deta_str)
+        fb.write(detb_str)
         
         # Render predictions
-        detrender(args.test_dir, imkey, detcrd, args.resdir)
-        labelrender(args.resdir, imkey, gdcrd)
+        detrender(args.test_dir, imkey, deta_crd, detb_crd, args.resdir)
+        labelrender(args.resdir, imkey, gda_crd, gdb_crd)
 
     f.close()
     print (" | -- Eval Ave Loss {:.2f}".format(running_loss/(ii+1))) 
@@ -98,8 +99,10 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="./model_best.pth.tar", 
                             help="Give a model to test.")
-    parser.add_argument('--det_fn', type=str, default="./result/det.txt", 
-                            help="Detection result filename.")
+    parser.add_argument('--deta_fn', type=str, default="./result/det_a.txt", 
+                            help="Detection result filename of image a.")
+    parser.add_argument('--detb_fn', type=str, default="./result/det_b.txt", 
+                            help="Detection result filename of image b.")
     parser.add_argument('--resdir', type=str, default="./result",
                             help="Rendered image directory.")
 
