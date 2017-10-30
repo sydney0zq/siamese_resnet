@@ -19,21 +19,24 @@ import os.path as osp
 from torchvision import transforms as T
 from torch.utils.data import DataLoader
 import numpy as np
+import random
 import xml.etree.ElementTree as ET
 
 
 ### UTEST ###
-from u_test import labelrender
+#from u_test import labelrender
 
 def constrain(min_val, max_val, val):
     return min(max_val, max(min_val, val))
 
 class Pair_Dataset(data.Dataset):
 
-    def __init__(self, im_root, scale_size=512, label_shape=(5, 7, 7), transforms=None, train=True, test=False):
+    """
+        label_shape: 10 means __(00, 01, 10, 11)________(two boundingboxes)
+    """
+    def __init__(self, im_root, scale_size=512, label_shape=(10, 7, 7), transforms=None, train=True, test=False):
         """Get all images and spearate dataset to training and testing set."""
-        self.test = test
-        self.train = train
+        self.test, self.train = test, train
         self.im_root = im_root
         self.imkey_list = self.get_imkeylist()
         self.label_shape = label_shape
@@ -50,8 +53,7 @@ class Pair_Dataset(data.Dataset):
 
         # Transform
         if transforms is None:
-            # NOTE 我认为这个归一化的数字对于这个任务假如使用差值图像输入没有任何意义
-            # 并且在ToTensor这个类中已经实现了0~1的映射
+            # 在ToTensor这个类中已经实现了0~1的映射
             normalize = T.Normalize(mean=[0.485, 0.456, 0.406],
                                     std =[0.229, 0.224, 0.225])
             # No enhancement on training and validating set
@@ -65,15 +67,108 @@ class Pair_Dataset(data.Dataset):
         im_a_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.jpg")
         im_b_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.jpg")
         im_a, im_b = Image.open(im_a_path), Image.open(im_b_path)
+        im_a = self.transforms(im_a)
+        im_b = self.transforms(im_b)
+        if random.uniform(0, 1) > 0.5:
+            im_a, im_b = im_b, im_a
 
+        """ Return normalized groundtruth bboxes space. """
         labela_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.xml")
         labelb_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.xml")
         labela, labelb = self.load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
         label = self.mergelabel(labela, labelb)
-        print (label)
+        return index, im_a, im_b, label
 
-        im_a = self.transforms(im_a)
-        im_b = self.transforms(im_b)
+    def load_pair_label(self, labela_path, labelb_path, label_shape, scale_size):
+        labela = self.get_label(labela_path, label_shape, scale_size, label_pos=0)
+        labelb = self.get_label(labelb_path, label_shape, scale_size, label_pos=1)
+        return self.mergelabel(labela, labelb)
+
+    def get_label(self, label_path, label_pos):
+        label = np.zeros(self.label_shape)
+        if osp.exists(self.label_path):
+            tree = ET.parse(self.label_path)
+            im_size = tree.findall("size")[0]
+            ow, oh = int(im_size.find("width").text), int(im_size.find("height").text)
+            bboxes = []
+            for obj in tree.findall('object'):
+                bbox = obj.find('bndbox')
+                t_boxes = [int(bbox.find('xmin').text), int(bbox.find('ymin').text),
+                           int(bbox.find('xmax').text), int(bbox.find('ymax').text)] 
+                bboxes.append([1,
+                            (t_boxes[0] + t_boxes[2])/(2.0*ow), # center x
+                            (t_boxes[1] + t_boxes[3])/(2.0*oh), # center y
+                            (t_boxes[2] - t_boxes[0])*1.0/ow,  # w
+                            (t_boxes[3] - t_boxes[1])*1.0/oh]) # h
+            """
+            # scale and correct boxes(cuz we resize input images to scale_size*scale_size)
+            for i in range(len(bboxes)):
+                midx, midy, w, h = bboxes[i][1:]
+                #scale_bbox = [midx/sx, midy/sy, w/sx, h/sy]
+                norm_bbox = [x*1./scale_size for x in scale_bbox]
+                bboxes[i][1:] = norm_bbox
+                #print ("norm_bbox", norm_bbox)
+            """
+
+            # In python3 range is a generator object - it does not return a list. Convert it to a list before shuffling
+            lst = list(range(len(bboxes)))       
+            #shuffle(lst)
+            for i in lst:
+                x, y, w, h = bboxes[i][1:]
+                x, y, w, h = constrain(0, 1, x), constrain(0, 1, y), constrain(0, 1, w), constrain(0, 1, h)
+                if (w < 0.01 or h < 0.01):
+                    continue
+                col, row = int(x * label_shape[2]), int(y * label_shape[1])
+                if label[label_pos, row, col] != 0:
+                    continue
+                label[label_pos, row, col] = 1
+                lbound, rbound = 2+label_pos*4, 2+label_pos*4+4
+                label[lbound:rbound, row, col] = x, y, w, h
+        return label
+    
+    def mergelabel(self, labela, labelb):
+        label = np.zeros(self.label_shape)
+        for row in range(self.label_shape[1]):
+            for col in range(self.label_shape[2]):
+                if labela[0, row, col] == 1 and label[0, row, col] == 0:
+                    label[0, row, col] = 1
+                    label[2:6, row, col] = labela[1:, row, col]
+                if labelb[1, row, col] == 1 and label[0, row, col] == 0:
+                    label[1, row, col] = 1
+                    label[6:10, row, col] = labelb[1:, row, col]
+        return label
+
+    def get_imkeylist(self):
+        imkey_list = []
+        for i in os.listdir(self.im_root):
+            if i[-3:] == "jpg" and (int(i[:-6]) not in imkey_list) and ("diff" not in i):
+                imkey_list.append(int(i[:-6]))
+        return imkey_list
+    
+    def __len__(self):
+        """ Return image pair number of the dataset. """
+        return self.imnum
+
+
+if __name__ == "__main__":
+    train_dataset = Pair_Dataset("./test", test=True)
+    trainloader = DataLoader(train_dataset, 
+                             batch_size=1,
+                             shuffle=True,
+                             num_workers=0)
+    #print (np.sort(train_dataset.imkey_list))
+    #print (len(train_dataset.imkey_list))
+    #exit()
+    #for ii, (im, label) in enumerate(trainloader):
+    imkeys = train_dataset.imkey_list
+    for ii, (index, im_a, im_b, labela, labelb) in enumerate(trainloader):
+        #print (ii, im_a.size(), labela.shape, im_b.size(), labelb.shape)
+        #print (type(im_a), type(labela))
+        #print (labela.shape[2]*labela.shape[3])
+        #print (index[:], "-----", ii)
+        #print (imkeys[index[0]])
+        #exit()
+        pass
 
         """
         diff_ab = self.transforms(ImageChops.subtract(im_a, im_b))
@@ -105,108 +200,3 @@ class Pair_Dataset(data.Dataset):
         labelrender("/tmp/ori", index, bboxa, bboxb)
         return index, im_a, im_b, labela, labelb
         """
-
-        return index, im_a, im_b, label
-        
-    def load_pair_label(self, labela_path, labelb_path, label_shape, scale_size):
-        """ Return normalized groundtruth bboxes space. """
-        labela = self.get_label(labela_path, label_shape, scale_size)
-        labelb = self.get_label(labelb_path, label_shape, scale_size)
-        return labela, labelb
-
-    def get_label(self, label_path, label_shape, scale_size):
-        label = np.zeros(label_shape)
-        if osp.exists(label_path):
-            tree = ET.parse(label_path)
-            im_size = tree.findall("size")[0]
-            ow = int(im_size.find("width").text)
-            oh = int(im_size.find("height").text)
-            #print ("ow oh", ow, oh)
-            #sx = ow / float(scale_size)
-            #sy = oh / float(scale_size)
-            bboxes = []
-            for obj in tree.findall('object'):
-                bbox = obj.find('bndbox')
-                t_boxes = [int(bbox.find('xmin').text), int(bbox.find('ymin').text),
-                           int(bbox.find('xmax').text), int(bbox.find('ymax').text)] 
-                bboxes.append([1,
-                            (t_boxes[0] + t_boxes[2])/(2.0*ow), # center x
-                            (t_boxes[1] + t_boxes[3])/(2.0*oh), # center y
-                            (t_boxes[2] - t_boxes[0])*1.0/ow,  # w
-                            (t_boxes[3] - t_boxes[1])*1.0/oh]) # h
-            """
-            # scale and correct boxes(cuz we resize input images to scale_size*scale_size)
-            for i in range(len(bboxes)):
-                midx, midy, w, h = bboxes[i][1:]
-                #scale_bbox = [midx/sx, midy/sy, w/sx, h/sy]
-                norm_bbox = [x*1./scale_size for x in scale_bbox]
-                bboxes[i][1:] = norm_bbox
-                #print ("norm_bbox", norm_bbox)
-            """
-
-            # In python3 range is a generator object - it does not return a list. Convert it to a list before shuffling
-            lst = list(range(len(bboxes)))       
-            #shuffle(lst)
-            for i in lst:
-                x, y, w, h = bboxes[i][1:]
-                x = constrain(0, 1, x)
-                y = constrain(0, 1, y)
-                w = constrain(0, 1, w)
-                h = constrain(0, 1, h)
-                if (w < 0.01 or h < 0.01):
-                    continue
-                col = int(x * label_shape[2])
-                row = int(y * label_shape[1])
-                if label[0, row, col] != 0:
-                    continue
-                label[:, row, col] = 1, x, y, w, h
-                #print ("label", label[:, row, col])
-        return label
-    
-    def mergelabel(self, labela, labelb):
-        label = np.zeros(self.label_shape)
-        print(label.shape)
-        print (labela)
-        print (labelb)
-        for row in range(self.label_shape[1]):
-            for col in range(self.label_shape[2]):
-                if labela[0, row, col] == 1 and label[0, row, col] == 0:
-                    label[:, row, col] = labela[:, row, col]
-                if labelb[0, row, col] == 1 and label[0, row, col] == 0:
-                    label[:, row, col] = labelb[:, row, col]
-        return label
-
-    def get_imkeylist(self):
-        imkey_list = []
-        for i in os.listdir(self.im_root):
-            if i[-3:] == "jpg" and (int(i[:-6]) not in imkey_list) and ("diff" not in i):
-                imkey_list.append(int(i[:-6]))
-        return imkey_list
-    
-    def __len__(self):
-        """
-        Return image pair number of the dataset.
-        """
-        return self.imnum
-
-
-if __name__ == "__main__":
-    train_dataset = Pair_Dataset("./test", test=True)
-    trainloader = DataLoader(train_dataset, 
-                             batch_size=1,
-                             shuffle=True,
-                             num_workers=0)
-    #print (np.sort(train_dataset.imkey_list))
-    #print (len(train_dataset.imkey_list))
-    #exit()
-    #for ii, (im, label) in enumerate(trainloader):
-    imkeys = train_dataset.imkey_list
-    for ii, (index, im_a, im_b, labela, labelb) in enumerate(trainloader):
-        #print (ii, im_a.size(), labela.shape, im_b.size(), labelb.shape)
-        #print (type(im_a), type(labela))
-        #print (labela.shape[2]*labela.shape[3])
-        #print (index[:], "-----", ii)
-        #print (imkeys[index[0]])
-        #exit()
-        pass
-

@@ -35,17 +35,18 @@ def criterion(label, pred, s_prob=1, s_coord=5):
     loss = Variable(torch.zeros((1)), requires_grad=True).cuda().type('torch.cuda.DoubleTensor')
     lsz = [label.size()[0], label.size()[1], label.size()[2], label.size()[3]]
 
+    """
     # Manually implement softmax
     for i_pair in range(lsz[0]):
         softmax_denominator = torch.sum(torch.exp(pred[i_pair, 0, :, :]))
         #print (softmax_denominator)
         for row in range(lsz[2]):
-            for col in range(pred_sz[3]):
+            for col in range(lsz[3]):
                 pred[i_pair, 0, row, col] = torch.exp(pred[i_pair, 0, row, col]) / softmax_denominator
-
+    """
     for i_pair in range(lsz[0]):
         for row in range(lsz[2]):
-            for col in range(pred_sz[3]):
+            for col in range(lsz[3]):
                 if label[i_pair, 0, row, col].data[0]:
                     #print ("------{}-----".format("label"))
                     #print (label[i_pair, :, row, col].data)
@@ -58,11 +59,10 @@ def criterion(label, pred, s_prob=1, s_coord=5):
                     diff_wh = label[i_pair, 3:5, row, col] - pred[i_pair, 3:5, row, col]
                     #sqrt_diff_wh = torch.sqrt(labela[i_pair, 3:5, row, col]) - torch.sqrt(pred_ab[i_pair, 3:5, row, col])
 
-                    #loss += pred_loss
                     loss += torch.mul(prob_diff, prob_diff)*s_prob
                     loss += torch.sum(torch.mul(diff_xy, diff_xy))*s_coord
                     loss += torch.sum(torch.mul(diff_wh, diff_wh))*s_coord*1.414
-    loss = loss/pred_sz[0]
+    loss = loss/lsz[0]
     #print ("Now loss reaches to {}, pred_size = {}".format(loss, pred_sz[0]))
     return loss
 

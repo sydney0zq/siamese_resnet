@@ -7,7 +7,7 @@
 # Distributed under terms of the MIT license.
 
 """
-Training siamese network.
+Training learning difference of two similar images network.
 """
 
 import argparse
@@ -39,7 +39,7 @@ def train(args):
                                 num_workers=args.num_workers)
 
     ### MODEL and METHOD ###
-    model = SiameseBranchNetwork()
+    model = DiffNetwork()
     if args.cuda:
         model.cuda()
 
@@ -75,7 +75,7 @@ def train(args):
                 optimizer.zero_grad()
                 pred = model(inp_a, inp_b)
                 
-                loss = criterion(labela, labelb, pred)
+                loss = criterion(label, pred)
                 if phase == "train":
                     loss.backward()
                     optimizer.step()
@@ -84,7 +84,6 @@ def train(args):
                     print (" | Epoch{}: {}, Loss {:.2f}".format(epoch, ii, loss.data[0]))
                 running_loss += loss.data[0]
             epoch_loss = running_loss / (ii+1)
-            exit()
             print (" | Epoch {} {} Loss {:.4f}".format(epoch, phase, epoch_loss)) 
 
             # Deep copy of the model
@@ -102,9 +101,9 @@ def parse():
     ### DATA ###
     parser.add_argument('--trainval_dir', type=str, default="./data/train")
     parser.add_argument('--test_dir', type=str, default="./data/test")
-    parser.add_argument('--nepochs', type=int, default=10,
+    parser.add_argument('--nepochs', type=int, default=100,
                             help="Number of sweeps over the dataset to train.")
-    parser.add_argument('--batch_size', type=int, default=8,
+    parser.add_argument('--batch_size', type=int, default=4,
                             help="Number of images in each mini-batch.")
     parser.add_argument('--num_workers', type=int, default=8,
                             help="Number of data loading threads.")
@@ -112,9 +111,9 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.005, 
+    parser.add_argument('--lr', type=float, default=0.001, 
                             help="Learning rate for optimizing method.")
-    parser.add_argument('--lr_stepsize', type=int, default=2, 
+    parser.add_argument('--lr_stepsize', type=int, default=30, 
                             help="Control exponent learning rate decay..")
     parser.add_argument('--log_freq', type=int, default=20)
     # As a rule of thumb, the more training examples you have, the weaker this term should be. 
