@@ -37,5 +37,5 @@ class SiameseBranchNetwork(nn.Module):
         output_a = self.resnet18(input_a)
         output_a = self.branch1(output_a)
         output_b = self.resnet18(input_b)
-        output_b = self.branch2(output_b)
+        output_b = self.branch1(output_b)
         return output_a, output_b

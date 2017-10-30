@@ -68,43 +68,45 @@ def getimsize(im_root, imkey, scale_size=512):
     oh = int(im_size.find("height").text)
     return (ow, oh)
 
-
-
-
-
-
-
 def parse_det(label, pred, imkey, imsize, scale_size=512):
     #det result: 1, x, y, w, h -- normalized
     n_bbox = 0
     label_sz = label.size()[:]
     gd_list = []
-    det = []
+    det = np.array([])
     for row in range(label_sz[2]):
         for col in range(label_sz[3]):
+            # We only have one instance each time
             if label[0, 0, row, col].data[0]:
                 n_bbox += 1
                 gd_list.append(label[0, 1:, row, col].data.cpu().numpy().tolist()) 
+                
+                ### Get out the corrsponding prediction bbox
+                """
+                if n_bbox == 1:
+                    det = pred[0, :, row, col].data.cpu().numpy().reshape(1, 5)
+                else:
+                    det = np.vstack((det, pred[0, :, row, col].data.cpu().numpy()))
+                """
             if row == 0 and col == 0:
-                det = pred[0, :, row, col].data.cpu().numpy()
+                det = pred[0, :, row, col].data.cpu().numpy().reshape(1, 5)
             else:
                 det = np.vstack((det, pred[0, :, row, col].data.cpu().numpy()))
-
-    det_sort = np.sort(det, axis=0)
-    s2xB = label_sz[2] * label_sz[3] * 1
     ow, oh = imsize
     sw, sh = float(scale_size)/ow, float(scale_size)/oh
+    det_len = det.shape[0]
+    print ("det_len", det_len)
 
-    for i in range(len(det_sort)):
+    for i in range(det_len):
         # detx --> det_midx; dety --> det_midy
-        detx, dety, detw, deth = det_sort[i, 1:]
+        detx, dety, detw, deth = det[i, 1:]
         detx, dety = scale_size*detx, scale_size*dety
         detw, deth = scale_size*detw, scale_size*deth
 
         orix, oriy = int(detx/sw), int(dety/sh)
         oriw, orih = int(detw/sw), int(deth/sh)
 
-        det_sort[i, 1:] = orix, oriy, oriw, orih
+        det[i, 1:] = orix, oriy, oriw, orih
 
     for i in range(n_bbox):
         gdx, gdy, gdw, gdh = gd_list[i][:]
@@ -119,13 +121,12 @@ def parse_det(label, pred, imkey, imsize, scale_size=512):
     for i in range(n_bbox):
         det_str += "{:05d}".format(imkey) + " "
         for j in range(label_sz[1]):
-            det_str += f2s(det_sort[s2xB-i-1, j]) + " "
+            det_str += f2s(det[det_len-i-1, j]) + " "
         det_str += "\n"
     
     det_list = []
-    for i in range(n_bbox):
-    #for i in range(s2xB):
-        det_list.append(det_sort[s2xB-i-1, :].tolist())
+    for i in range(det_len):
+        det_list.append(det[det_len-i-1, :].tolist())
 
     return det_str, det_list, gd_list
 

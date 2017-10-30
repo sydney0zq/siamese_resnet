@@ -26,10 +26,11 @@ import xml.etree.ElementTree as ET
 
 from model.model import SiameseBranchNetwork
 from data.dataset import Pair_Dataset
-from yolo_loss import criterion
+from loss import criterion
 import os.path as osp
 
-from utils import getimsize, detrender, labelrender, parse_det, ave_iou
+#from utils import getimsize, detrender, labelrender, parse_det, ave_iou
+from utils_test import getimsize, detrender, labelrender, parse_det, ave_iou
 
 def evaluate(args):
     ### DATA ###
@@ -38,7 +39,7 @@ def evaluate(args):
     dataloader = {}
     dataloader["test"] = DataLoader(dataclass,
                                   1, 
-                                  shuffle=True, 
+                                  shuffle=False, 
                                   num_workers=args.num_workers)
 
     ### LOAD MODEL ###
@@ -92,7 +93,7 @@ def evaluate(args):
 
 def parse():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_dir', type=str, default="./data/test")
+    parser.add_argument('--test_dir', type=str, default="./data/temp")
     parser.add_argument('--num_workers', type=int, default=8,
                             help="Number of data loading threads.")
     parser.add_argument('--no_cuda', action='store_true', default=False,
