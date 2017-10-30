@@ -22,7 +22,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 
-from model.model import SiameseBranchNetwork
+from model.model import DiffNetwork
 from data.dataset import Pair_Dataset
 from loss import criterion
 
@@ -54,9 +54,6 @@ def train(args):
     best_model_wts = model.state_dict()
     best_loss = float('inf')
     for epoch in range(args.nepochs):
-        """
-        Here I use the diff of image pair, that's because I think it may be a better feature.
-        """
         print (" | Epoch {}/{}".format(epoch, args.nepochs-1))
         print (" | " + "-" * 20)
 
@@ -69,16 +66,16 @@ def train(args):
                 model.train(False)
 
             running_loss = 0
-            for ii, (index, diff_ab, diff_ba, labela, labelb) in enumerate(dataloader[phase]):
-                inp_ab, inp_ba = Variable(diff_ab), Variable(diff_ba)
-                labela, labelb = Variable(labela), Variable(labelb)
+            for ii, (index, im_a, im_b, label) in enumerate(dataloader[phase]):
+                inp_a, inp_b = Variable(im_a), Variable(im_b)
+                label = Variable(label)
                 if args.cuda:
-                    inp_ab, inp_ba = inp_ab.cuda(), inp_ba.cuda()
-                    labela, labelb = labela.cuda(), labelb.cuda()
+                    inp_a, inp_b = inp_a.cuda(), inp_b.cuda()
+                    label = label.cuda()
                 optimizer.zero_grad()
-                pred_ab, pred_ba = model(inp_ab, inp_ba)
+                pred = model(inp_a, inp_b)
                 
-                loss = criterion(labela, labelb, pred_ab, pred_ba)
+                loss = criterion(labela, labelb, pred)
                 if phase == "train":
                     loss.backward()
                     optimizer.step()
@@ -99,7 +96,6 @@ def train(args):
         print (" | Time consuming: {:.4f}s".format(time.time()-tic))
         print (" | ")
    
-
 
 def parse():
     parser = argparse.ArgumentParser()
