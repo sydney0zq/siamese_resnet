@@ -75,19 +75,18 @@ class Pair_Dataset(data.Dataset):
         """ Return normalized groundtruth bboxes space. """
         labela_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.xml")
         labelb_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.xml")
-        labela, labelb = self.load_pair_label(labela_path, labelb_path, self.label_shape, self.scale_size)
-        label = self.mergelabel(labela, labelb)
+        label = self.load_pair_label(labela_path, labelb_path)
         return index, im_a, im_b, label
 
-    def load_pair_label(self, labela_path, labelb_path, label_shape, scale_size):
-        labela = self.get_label(labela_path, label_shape, scale_size, label_pos=0)
-        labelb = self.get_label(labelb_path, label_shape, scale_size, label_pos=1)
+    def load_pair_label(self, labela_path, labelb_path):
+        labela = self.get_label(labela_path, label_pos=0)
+        labelb = self.get_label(labelb_path, label_pos=1)
         return self.mergelabel(labela, labelb)
 
     def get_label(self, label_path, label_pos):
         label = np.zeros(self.label_shape)
-        if osp.exists(self.label_path):
-            tree = ET.parse(self.label_path)
+        if osp.exists(label_path):
+            tree = ET.parse(label_path)
             im_size = tree.findall("size")[0]
             ow, oh = int(im_size.find("width").text), int(im_size.find("height").text)
             bboxes = []
@@ -118,7 +117,7 @@ class Pair_Dataset(data.Dataset):
                 x, y, w, h = constrain(0, 1, x), constrain(0, 1, y), constrain(0, 1, w), constrain(0, 1, h)
                 if (w < 0.01 or h < 0.01):
                     continue
-                col, row = int(x * label_shape[2]), int(y * label_shape[1])
+                col, row = int(x * self.label_shape[2]), int(y * self.label_shape[1])
                 if label[label_pos, row, col] != 0:
                     continue
                 label[label_pos, row, col] = 1
@@ -132,10 +131,10 @@ class Pair_Dataset(data.Dataset):
             for col in range(self.label_shape[2]):
                 if labela[0, row, col] == 1 and label[0, row, col] == 0:
                     label[0, row, col] = 1
-                    label[2:6, row, col] = labela[1:, row, col]
+                    label[2:6, row, col] = labela[2:6, row, col]
                 if labelb[1, row, col] == 1 and label[0, row, col] == 0:
                     label[1, row, col] = 1
-                    label[6:10, row, col] = labelb[1:, row, col]
+                    label[6:10, row, col] = labelb[6:10, row, col]
         return label
 
     def get_imkeylist(self):
