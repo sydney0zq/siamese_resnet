@@ -25,7 +25,7 @@ def parse_det(label, pred, imkey, imsize, label_pos):
     #det result: 1, x, y, w, h -- normalized
     assert (label_pos == 0 or label_pos==1), " | Error: label_pos in parse_det function illegal..."
     n_bbox, lsz = 0, label.size()[:]
-    gd_list, det = [], np.array([])
+    gd_list, det = [], np.zeros((1, 5))
     lbound, rbound = 2+label_pos*4, 2+label_pos*4+4
     ow, oh = imsize
 
@@ -37,18 +37,36 @@ def parse_det(label, pred, imkey, imsize, label_pos):
                 gd_list.append(label[0, lbound:rbound, row, col].data.cpu().numpy().tolist()) 
                 
                 ### Get out the corrsponding prediction bbox
+                """
                 if n_bbox == 1:
-                    det = pred[0, lbound:rbound, row, col].data.cpu().numpy().reshape(1, 5)
+                    det[0, 0] =  pred[0, label_pos, row, col].data.cpu().numpy()
+                    det[0, 1:] = pred[0, lbound:rbound, row, col].data.cpu().numpy()
+                    det = det.reshape(1, 5)
                 else:
-                    det = np.vstack((det, pred[0, lbound:rbound, row, col].data.cpu().numpy()))
-
-            """
+                    temp = np.zeros((1, 5))
+                    temp[0, 0] = pred[0, label_pos, row, col].data.cpu().numpy()
+                    temp[0, 1:] = pred[0, lbound:rbound, row, col].data.cpu().numpy()
+                    temp = temp.reshape(1, 5)
+                    det = np.vstack((det, temp))
+                """
             if row == 0 and col == 0:
-                det = pred[0, :, row, col].data.cpu().numpy().reshape(1, 5)
+                det[0, 0] =  pred[0, label_pos, row, col].data.cpu().numpy()
+                det[0, 1:] = pred[0, lbound:rbound, row, col].data.cpu().numpy()
+                det = det.reshape(1, 5)
             else:
-                det = np.vstack((det, pred[0, :, row, col].data.cpu().numpy()))
-            """
+                temp = np.zeros((1, 5))
+                temp[0, 0] = pred[0, label_pos, row, col].data.cpu().numpy()
+                temp[0, 1:] = pred[0, lbound:rbound, row, col].data.cpu().numpy()
+                temp = temp.reshape(1, 5)
+                det = np.vstack((det, temp))
+
     det_len = det.shape[0]
+    ### DECIDE DET RANGE ###
+    print (det)
+    det_sort = det[np.argsort(det[:, 0]), :]
+    print (det_sort)
+    exit()
+    det_len = 5
 
     for i in range(det_len):
         # detx means det_midx; dety means det_midy
@@ -67,7 +85,7 @@ def parse_det(label, pred, imkey, imsize, label_pos):
     det_str, det_list = "", []
     for i in range(det_len):
         det_str += "{:05d}".format(imkey) + " "
-        for j in range(label_sz[1]):
+        for j in range(5):
             det_str += f2s(det[det_len-i-1, j]) + " "
         det_str += "\n"
 

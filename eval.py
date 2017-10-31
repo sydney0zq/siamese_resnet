@@ -73,8 +73,8 @@ def evaluate(args):
         imkey = int(imkey_list[index[0]])
         imsize = getimsize(args.test_dir, imkey)
         # deta_crd and gda_crd are both (midx, midy, w, h)
-        deta_str, deta_crd, gda_crd = parse_det(labela, pred_ab, imkey, imsize, 0)
-        detb_str, detb_crd, gdb_crd = parse_det(labela, pred_ab, imkey, imsize, 1)
+        deta_str, deta_crd, gda_crd = parse_det(label, pred, imkey, imsize, 0)
+        detb_str, detb_crd, gdb_crd = parse_det(label, pred, imkey, imsize, 1)
         #print (ave_iou(deta_crd, gda_crd))
         #print (ave_iou(detb_crd, gdb_crd))
 
@@ -86,7 +86,8 @@ def evaluate(args):
         detrender(args.test_dir, imkey, deta_crd, detb_crd, args.resdir)
         labelrender(args.resdir, imkey, gda_crd, gdb_crd)
 
-    f.close()
+    fa.close()
+    fb.close()
     print (" | -- Eval Ave Loss {:.2f}".format(running_loss/(ii+1))) 
     print (" | Time consuming: {:.2f}s".format(time.time()-tic))
 

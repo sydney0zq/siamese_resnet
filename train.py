@@ -101,7 +101,7 @@ def parse():
     ### DATA ###
     parser.add_argument('--trainval_dir', type=str, default="./data/train")
     parser.add_argument('--test_dir', type=str, default="./data/test")
-    parser.add_argument('--nepochs', type=int, default=100,
+    parser.add_argument('--nepochs', type=int, default=200,
                             help="Number of sweeps over the dataset to train.")
     parser.add_argument('--batch_size', type=int, default=4,
                             help="Number of images in each mini-batch.")
@@ -111,11 +111,11 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.001, 
+    parser.add_argument('--lr', type=float, default=0.0001, 
                             help="Learning rate for optimizing method.")
     parser.add_argument('--lr_stepsize', type=int, default=30, 
                             help="Control exponent learning rate decay..")
-    parser.add_argument('--log_freq', type=int, default=20)
+    parser.add_argument('--log_freq', type=int, default=10)
     # As a rule of thumb, the more training examples you have, the weaker this term should be. 
     # The more parameters you have the higher this term should be.
     parser.add_argument('--weight_decay', type=float, default=1e-3,
