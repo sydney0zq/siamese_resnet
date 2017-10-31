@@ -1,46 +1,38 @@
+# --------------------------------------------------------
+# Fast R-CNN
+# Copyright (c) 2015 Microsoft
+# Licensed under The MIT License [see LICENSE for details]
+# Written by Ross Girshick
+# --------------------------------------------------------
+
 import numpy as np
-from numpy import *
 
-# boxes is a list of size (n x 5)
-# trial is a numpy array of size (n x 5)
-# Author: Vicky
+def nms(dets, thresh=0.5):
+    """Pure Python NMS baseline."""
+    scores = dets[:, 0]
+    x1 = dets[:, 1]
+    y1 = dets[:, 2]
+    x2 = dets[:, 3]
+    y2 = dets[:, 4]
 
-def nms(boxes,overlap):
-    if not boxes:
-        pick = []
-    else:
-        trial = zeros((len(boxes),5),dtype=float64)
-        trial[:] = boxes[:]
-        x1 = trial[:, 1]
-        y1 = trial[:, 2]
-        x2 = trial[:, 3]
-        y2 = trial[:, 4]
-        score = trial[:, 0]
-        area = (x2-x1+1)*(y2-y1+1)
+    areas = (x2 - x1 + 1) * (y2 - y1 + 1)
+    order = scores.argsort()[::-1]
 
-        #vals = sort(score)
-        I = argsort(score)
-        pick = []
-        count = 1
-        while (I.size!=0):
-            #print "Iteration:",count
-            last = I.size
-            i = I[last-1]
-            pick.append(i)
-            suppress = [last-1]
-            for pos in range(last-1):
-                    j = I[pos]
-                    xx1 = max(x1[i],x1[j])
-                    yy1 = max(y1[i],y1[j])
-                    xx2 = min(x2[i],x2[j])
-                    yy2 = min(y2[i],y2[j])
-                    w = xx2-xx1+1
-                    h = yy2-yy1+1
-                    if (w>0 and h>0):
-                        o = w*h/area[j]
-                        print ("Overlap is", o)
-                        if (o > overlap):
-                                suppress.append(pos)
-            I = delete(I,suppress)
-            count = count + 1
-    return pick
+    keep = []
+    while order.size > 0:
+        i = order[0]
+        keep.append(i)
+        xx1 = np.maximum(x1[i], x1[order[1:]])
+        yy1 = np.maximum(y1[i], y1[order[1:]])
+        xx2 = np.minimum(x2[i], x2[order[1:]])
+        yy2 = np.minimum(y2[i], y2[order[1:]])
+
+        w = np.maximum(0.0, xx2 - xx1 + 1)
+        h = np.maximum(0.0, yy2 - yy1 + 1)
+        inter = w * h
+        ovr = inter / (areas[i] + areas[order[1:]] - inter)
+
+        inds = np.where(ovr <= thresh)[0]
+        order = order[inds + 1]
+
+    return keep

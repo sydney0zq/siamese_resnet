@@ -29,7 +29,7 @@ from data.dataset import Pair_Dataset
 from loss import criterion
 import os.path as osp
 
-from utils import getimsize, detrender, labelrender, parse_det, ave_iou
+from utils import getimsize, detrender, labelrender, parse_det, parse_gd
 
 def evaluate(args):
     ### DATA ###
@@ -73,8 +73,9 @@ def evaluate(args):
         imkey = int(imkey_list[index[0]])
         imsize = getimsize(args.test_dir, imkey)
         # deta_crd and gda_crd are both (midx, midy, w, h)
-        deta_str, deta_crd, gda_crd = parse_det(label, pred, imkey, imsize, 0)
-        detb_str, detb_crd, gdb_crd = parse_det(label, pred, imkey, imsize, 1)
+        gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
+        deta_str, deta_crd = parse_det(pred, imkey, imsize, 1)
+        detb_str, detb_crd = parse_det(pred, imkey, imsize, 2)
         #print (ave_iou(deta_crd, gda_crd))
         #print (ave_iou(detb_crd, gdb_crd))
 

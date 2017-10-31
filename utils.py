@@ -16,57 +16,57 @@ import math
 import numpy as np
 import os.path as osp
 import xml.etree.ElementTree as ET
+from nms import nms
 
 floor = lambda x: math.floor(float(x))
 f2s = lambda x: str(float(x))
 
 
-def parse_det(label, pred, imkey, imsize, label_pos):
-    #det result: 1, x, y, w, h -- normalized
-    assert (label_pos == 0 or label_pos==1), " | Error: label_pos in parse_det function illegal..."
-    n_bbox, lsz = 0, label.size()[:]
-    gd_list, det = [], np.zeros((1, 5))
-    lbound, rbound = 2+label_pos*4, 2+label_pos*4+4
+# label is 5x7x7
+# pred  is 7x7x7
+def parse_gd(label, imsize, pairwise):
+    gsz = label.size()[2:]
+    gd_list = []
+    n_bbox = 0
+    ow, oh = imsize
+    for row in range(gsz[0]):
+        for col in range(gsz[1]):
+            # Generate groundtruth list
+            # We only have one instance each time at evalution stage
+            if label[0, pairwise, row, col].data[0]:
+                n_bbox += 1
+                gd_list.append(label[0, 3:7, row, col].data.cpu().numpy().tolist()) 
+
+    for i in range(n_bbox):
+        gdx, gdy, gdw, gdh = gd_list[i][:]
+        gdx,  gdy  = ow*gdx, oh*gdy
+        gdw,  gdh  = ow*gdw, oh*gdh
+        gd_list[i][:] = gdx, gdy, gdw, gdh
+
+    return gd_list
+
+def parse_det(pred, imkey, imsize, pairwise):
+    #det result: prob_obj, pa, pb, x, y, w, h -- normalized
+    ROW, COL = pred.size()[2:]
+    det = np.zeros((1, 5))
     ow, oh = imsize
 
-    for row in range(lsz[2]):
-        for col in range(lsz[3]):
-            # We only have one instance each time at evalution stage
-            if label[0, label_pos, row, col].data[0]:
-                n_bbox += 1
-                gd_list.append(label[0, lbound:rbound, row, col].data.cpu().numpy().tolist()) 
-                
-                ### Get out the corrsponding prediction bbox
-                """
-                if n_bbox == 1:
-                    det[0, 0] =  pred[0, label_pos, row, col].data.cpu().numpy()
-                    det[0, 1:] = pred[0, lbound:rbound, row, col].data.cpu().numpy()
-                    det = det.reshape(1, 5)
-                else:
-                    temp = np.zeros((1, 5))
-                    temp[0, 0] = pred[0, label_pos, row, col].data.cpu().numpy()
-                    temp[0, 1:] = pred[0, lbound:rbound, row, col].data.cpu().numpy()
-                    temp = temp.reshape(1, 5)
-                    det = np.vstack((det, temp))
-                """
+    pred = pred.data.cpu().numpy()
+
+    for row in range(ROW):
+        for col in range(COL):
             if row == 0 and col == 0:
-                det[0, 0] =  pred[0, label_pos, row, col].data.cpu().numpy()
-                det[0, 1:] = pred[0, lbound:rbound, row, col].data.cpu().numpy()
+                det[0, 0] = pred[0, 0, row, col] * pred[0, pairwise, row, col]
+                det[0, 1:] = pred[0, 3:, row, col]
                 det = det.reshape(1, 5)
             else:
                 temp = np.zeros((1, 5))
-                temp[0, 0] = pred[0, label_pos, row, col].data.cpu().numpy()
-                temp[0, 1:] = pred[0, lbound:rbound, row, col].data.cpu().numpy()
+                temp[0, 0] = pred[0, 0, row, col] * pred[0, pairwise, row, col]
+                temp[0, 1:] = pred[0, 3:, row, col]
                 temp = temp.reshape(1, 5)
                 det = np.vstack((det, temp))
 
     det_len = det.shape[0]
-    ### DECIDE DET RANGE ###
-    print (det)
-    det_sort = det[np.argsort(det[:, 0]), :]
-    print (det_sort)
-    exit()
-    det_len = 5
 
     for i in range(det_len):
         # detx means det_midx; dety means det_midy
@@ -75,23 +75,18 @@ def parse_det(label, pred, imkey, imsize, label_pos):
         orix, oriy = int(detx*ow), int(dety*oh)
         oriw, orih = int(detw*ow), int(deth*oh)
         det[i, 1:] = orix, oriy, oriw, orih
+    
+    det_list = det[nms(det)]
+    det_len = len(det_list)
 
-    for i in range(n_bbox):
-        gdx, gdy, gdw, gdh = gd_list[i][:]
-        gdx,  gdy  = ow*gdx, oh*gdy
-        gdw,  gdh  = ow*gdw, oh*gdh
-        gd_list[i][:] = gdx, gdy, gdw, gdh
-
-    det_str, det_list = "", []
+    det_str = ""
     for i in range(det_len):
         det_str += "{:05d}".format(imkey) + " "
         for j in range(5):
-            det_str += f2s(det[det_len-i-1, j]) + " "
+            det_str += f2s(det_list[i][j]) + " "
         det_str += "\n"
 
-        det_list.append(det[det_len-i-1, :].tolist())
-
-    return det_str, det_list, gd_list
+    return det_str, det_list
 
 
 ### RENDER AREA ###
