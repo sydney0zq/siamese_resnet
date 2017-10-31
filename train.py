@@ -69,8 +69,6 @@ def train(args):
             for ii, (index, im_a, im_b, label) in enumerate(dataloader[phase]):
                 inp_a, inp_b = Variable(im_a), Variable(im_b)
                 label = Variable(label)
-                print (label)
-                exit()
                 if args.cuda:
                     inp_a, inp_b = inp_a.cuda(), inp_b.cuda()
                     label = label.cuda()

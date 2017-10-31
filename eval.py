@@ -80,11 +80,12 @@ def evaluate(args):
         #print (ave_iou(detb_crd, gdb_crd))
 
         # Write str to det files
-        fa.write(deta_str)
-        fb.write(detb_str)
+        #fa.write(deta_str)
+        #fb.write(detb_str)
         
         # Render predictions
         detrender(args.test_dir, imkey, deta_crd, detb_crd, args.resdir)
+
         labelrender(args.resdir, imkey, gda_crd, gdb_crd)
 
     fa.close()

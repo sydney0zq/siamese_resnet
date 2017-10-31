@@ -103,6 +103,7 @@ class Pair_Dataset(data.Dataset):
                             (t_boxes[1] + t_boxes[3])/(2.0*oh), # center y
                             (t_boxes[2] - t_boxes[0])*1.0/ow,  # w
                             (t_boxes[3] - t_boxes[1])*1.0/oh]) # h
+                print ((t_boxes[0] + t_boxes[2])/(2.0), (t_boxes[1] + t_boxes[3])/(2.0), (t_boxes[2] - t_boxes[0])*1.0, (t_boxes[3] - t_boxes[1])*1.0)
             """
             # scale and correct boxes(cuz we resize input images to scale_size*scale_size)
             for i in range(len(bboxes)):
@@ -122,7 +123,7 @@ class Pair_Dataset(data.Dataset):
                 if (w < 0.01 or h < 0.01):
                     continue
                 col, row = int(x * self.label_shape[2]), int(y * self.label_shape[1])
-                x, y = x * self.label_shape[2] - col, y * self.label_shape[1] - row
+                #x, y = x * self.label_shape[2] - col, y * self.label_shape[1] - row
                 if label[0, row, col] != 0:
                     continue
                 label[0, row, col] = 1

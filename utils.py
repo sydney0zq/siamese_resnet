@@ -25,17 +25,22 @@ f2s = lambda x: str(float(x))
 # label is 5x7x7
 # pred  is 7x7x7
 def parse_gd(label, imsize, pairwise):
-    gsz = label.size()[2:]
+    ROW, COL = label.size()[2:]
     gd_list = []
     n_bbox = 0
     ow, oh = imsize
-    for row in range(gsz[0]):
-        for col in range(gsz[1]):
+    label = label.data.cpu().numpy()
+    for row in range(ROW):
+        for col in range(COL):
             # Generate groundtruth list
             # We only have one instance each time at evalution stage
-            if label[0, pairwise, row, col].data[0]:
+            if label[0, pairwise, row, col]:
                 n_bbox += 1
-                gd_list.append(label[0, 3:7, row, col].data.cpu().numpy().tolist()) 
+                #x = (label[0, 3, row, col] + col) / COL
+                #y = (label[0, 4, row, col] + row) / ROW
+                x, y = label[0, 3:5, row, col]
+                w, h = label[0, 5:, row, col]
+                gd_list.append([x, y, w, h])
 
     for i in range(n_bbox):
         gdx, gdy, gdw, gdh = gd_list[i][:]
