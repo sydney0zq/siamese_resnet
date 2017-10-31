@@ -24,7 +24,7 @@ from torch.optim import lr_scheduler
 
 from model.model import DiffNetwork
 from data.dataset import Pair_Dataset
-from loss import criterion
+from loss import YOLOloss
 
 def train(args):
     ### DATA ###
@@ -75,7 +75,7 @@ def train(args):
                 optimizer.zero_grad()
                 pred = model(inp_a, inp_b)
                 
-                loss = criterion(label, pred)
+                loss = YOLOloss(label, pred)
                 if phase == "train":
                     loss.backward()
                     optimizer.step()

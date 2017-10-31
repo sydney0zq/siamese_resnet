@@ -34,7 +34,7 @@ class Pair_Dataset(data.Dataset):
     """
         label_shape: 10 means __(00, 01, 10, 11)________(two boundingboxes)
     """
-    def __init__(self, im_root, scale_size=512, label_shape=(10, 7, 7), transforms=None, train=True, test=False):
+    def __init__(self, im_root, scale_size=512, label_shape=(7, 7, 7), transforms=None, train=True, test=False):
         """Get all images and spearate dataset to training and testing set."""
         self.test, self.train = test, train
         self.im_root = im_root
@@ -79,12 +79,16 @@ class Pair_Dataset(data.Dataset):
         return index, im_a, im_b, label
 
     def load_pair_label(self, labela_path, labelb_path):
-        labela = self.get_label(labela_path, label_pos=0)
-        labelb = self.get_label(labelb_path, label_pos=1)
+        labela = self.get_label(labela_path)
+        labelb = self.get_label(labelb_path)
         return self.mergelabel(labela, labelb)
 
-    def get_label(self, label_path, label_pos):
-        label = np.zeros(self.label_shape)
+    ###################################################
+    # GET LABEL TO STANDARD FORMAT
+    ###################################################
+    def get_label(self, label_path):
+        ROW, COL = self.label_shape[1], self.label_shape[2]
+        label = np.zeros((5, ROW, COL))
         if osp.exists(label_path):
             tree = ET.parse(label_path)
             im_size = tree.findall("size")[0]
@@ -111,30 +115,32 @@ class Pair_Dataset(data.Dataset):
 
             # In python3 range is a generator object - it does not return a list. Convert it to a list before shuffling
             lst = list(range(len(bboxes)))       
-            #shuffle(lst)
+            shuffle(lst)
             for i in lst:
                 x, y, w, h = bboxes[i][1:]
                 x, y, w, h = constrain(0, 1, x), constrain(0, 1, y), constrain(0, 1, w), constrain(0, 1, h)
                 if (w < 0.01 or h < 0.01):
                     continue
                 col, row = int(x * self.label_shape[2]), int(y * self.label_shape[1])
-                if label[label_pos, row, col] != 0:
+                x, y = x * self.label_shape[2] - col, y * self.label_shape[1] - row
+                if label[0, row, col] != 0:
                     continue
-                label[label_pos, row, col] = 1
-                lbound, rbound = 2+label_pos*4, 2+label_pos*4+4
-                label[lbound:rbound, row, col] = x, y, w, h
+                label[0, row, col] = 1
+                label[1:, row, col] = x, y, w, h
         return label
     
     def mergelabel(self, labela, labelb):
         label = np.zeros(self.label_shape)
         for row in range(self.label_shape[1]):
             for col in range(self.label_shape[2]):
-                if labela[0, row, col] == 1 and label[0, row, col] == 0:
+                if labela[0, row, col] == 1 and label[1, row, col] == 0:
                     label[0, row, col] = 1
-                    label[2:6, row, col] = labela[2:6, row, col]
-                if labelb[1, row, col] == 1 and label[0, row, col] == 0:
                     label[1, row, col] = 1
-                    label[6:10, row, col] = labelb[6:10, row, col]
+                    label[3:7, row, col] = labela[1:, row, col]
+                if labelb[1, row, col] == 1 and label[2, row, col] == 0 and label[1, row ,col] == 0:
+                    label[0, row, col] = 1
+                    label[2, row, col] = 1
+                    label[3:7, row, col] = labelb[1:, row, col]
         return label
 
     def get_imkeylist(self):

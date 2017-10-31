@@ -26,6 +26,11 @@ How to get value from GPU RAM
 """
 
 
+def criterion(label, pred, object_scale=1, noobject_scale=0.1, class_scale=1, coord_scale=5, num_box=1, num_class=2):
+    assert (self.num_box == 1), " | In loss layer, num_box is false!"
+
+
+
 class YOLOloss():
     def __init__(self, label, pred, object_scale=1, noobject_scale=0.1, 
                             class_scale=1, coord_scale=5, num_box=1, num_class=2):
@@ -40,7 +45,6 @@ class YOLOloss():
         self.lsz = [label.size()[0], label.size()[1], label.size()[2], label.size()[3]]
         self.loss = np.zeros_like(pred, dtype=np.float32)
         self.num_box = num_box
-        assert (self.num_box == 1), " | In loss layer, num_box is false!"
         
         self.forward()
 
