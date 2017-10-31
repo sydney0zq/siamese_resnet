@@ -24,7 +24,7 @@ from torch.optim import lr_scheduler
 
 from model.model import DiffNetwork
 from data.dataset import Pair_Dataset
-from loss import YOLOloss
+from loss import criterion
 
 def train(args):
     ### DATA ###
@@ -69,13 +69,15 @@ def train(args):
             for ii, (index, im_a, im_b, label) in enumerate(dataloader[phase]):
                 inp_a, inp_b = Variable(im_a), Variable(im_b)
                 label = Variable(label)
+                print (label)
+                exit()
                 if args.cuda:
                     inp_a, inp_b = inp_a.cuda(), inp_b.cuda()
                     label = label.cuda()
                 optimizer.zero_grad()
                 pred = model(inp_a, inp_b)
                 
-                loss = YOLOloss(label, pred)
+                loss = criterion(label, pred)
                 if phase == "train":
                     loss.backward()
                     optimizer.step()
@@ -100,7 +102,6 @@ def parse():
     parser = argparse.ArgumentParser()
     ### DATA ###
     parser.add_argument('--trainval_dir', type=str, default="./data/train")
-    parser.add_argument('--test_dir', type=str, default="./data/test")
     parser.add_argument('--nepochs', type=int, default=200,
                             help="Number of sweeps over the dataset to train.")
     parser.add_argument('--batch_size', type=int, default=4,
@@ -111,7 +112,7 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.0001, 
+    parser.add_argument('--lr', type=float, default=0.001, 
                             help="Learning rate for optimizing method.")
     parser.add_argument('--lr_stepsize', type=int, default=30, 
                             help="Control exponent learning rate decay..")
