@@ -58,26 +58,18 @@ def evaluate(args):
     fb = open(args.detb_fn, "w")
 
     for ii, (index, im_a, im_b, label) in enumerate(dataloader["test"]):
-        # Evaluation
         inp_a, inp_b = Variable(im_a), Variable(im_b)
         label = Variable(label)
         if args.cuda:
             inp_a, inp_b = inp_a.cuda(), inp_b.cuda()
             label = label.cuda()
         pred = model(inp_a, inp_b)
-        loss = criterion(label, pred)
-        running_loss += loss.data[0]
-        #print (" | Eval {} Loss {:.2f}".format(ii+1, loss.data[0])) 
-        
+        #loss = criterion(label, pred)
+        #running_loss += loss.data[0]
         imkey = int(imkey_list[index[0]])
-        imkey = 589
         imsize = getimsize(args.test_dir, imkey)
         # deta_crd and gda_crd are both (midx, midy, w, h)
-        print (imkey)
-        print (label)
         gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
-        print (gda_crd, gdb_crd)
-        exit()
         #deta_str, deta_crd = parse_det(pred, imkey, imsize, 1)
         #detb_str, detb_crd = parse_det(pred, imkey, imsize, 2)
         #print (ave_iou(deta_crd, gda_crd))
@@ -138,7 +130,7 @@ def u_test(args):
 
 if __name__ == "__main__":
     args = parse()
-    #evaluate(args)
-    u_test(args)
+    evaluate(args)
+    #u_test(args)
 
 
