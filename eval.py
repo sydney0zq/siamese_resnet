@@ -64,7 +64,7 @@ def evaluate(args):
             inp_a, inp_b = inp_a.cuda(), inp_b.cuda()
             label = label.cuda()
         pred = model(inp_a, inp_b)
-        #loss = criterion(label, pred)
+        loss = criterion(label, pred)
         #running_loss += loss.data[0]
         imkey = int(imkey_list[index[0]])
         imsize = getimsize(args.test_dir, imkey)

@@ -9,7 +9,6 @@
 import torch
 import numpy as np
 import time
-from copy import copy
 import matplotlib.pyplot as plt
 
 from torch.autograd import Variable
@@ -43,9 +42,9 @@ def criterion(label, pred, object_scale=1, noobject_scale=0.1, class_scale=1, co
             for col in range(psz[2]):
                 ### Compute match bounding box of groundtruth
                 if label[i_pair, 0, row, col].data[0]:
-                    truth = copy(label[i_pair, 1+num_class:, row, col])
-                    truth[0] /= psz[2]
-                    truth[1] /= psz[1]
+                    tx, ty, tw, th = label[i_pair, 1+num_class:, row, col].data
+                    tx = tx / psz[2]
+                    ty = ty / psz[1]
 
                     # Forward and backward of category(2) 
                     delta = pred[i_pair, num_box:num_box+num_class, row, col] - label[i_pair, 1:1+num_class, row, col]
@@ -56,12 +55,12 @@ def criterion(label, pred, object_scale=1, noobject_scale=0.1, class_scale=1, co
                     loss -= noobject_scale * (torch.mul(pred[i_pair, 0, row, col], pred[i_pair, 0, row, col]))
                     loss += object_scale * (delta ** 2)
 
-                    out = copy(pred[i_pair, num_box*(num_class+1):num_box*(num_class+1)+4, row, col]).data.cpu().numpy()
-                    out[0] /= psz[2]
-                    out[1] /= psz[1]
-                    out[2] = out[2] ** 2
-                    out[3] = out[3] ** 2
-                    iou = box_iou(out, truth)
+                    ox, oy, ow, oh = pred[i_pair, num_box*(num_class+1):num_box*(num_class+1)+4, row, col].data
+                    ox /= psz[2]
+                    oy /= psz[1]
+                    ow = ow ** 2
+                    oh = oh ** 2
+                    iou = box_iou([ox, oy, ow, oh], [tx, ty, tw, th])
                     loss += (iou - 1.0) ** 2
     loss = loss / psz[0]
 
@@ -71,8 +70,7 @@ def criterion(label, pred, object_scale=1, noobject_scale=0.1, class_scale=1, co
 ### UTILS FOR IOU ###
 
 def box_iou(a, b):
-    bc = copy(b).data.cpu().numpy()
-    return box_intersection(a, bc) / box_union(a, bc)
+    return box_intersection(a, b) / box_union(a, b)
 
 def box_intersection(a, b):
     def overlap(mida, wa, midb, wb):
