@@ -36,9 +36,9 @@ def parse_gd(label, imsize, pairwise):
             # We only have one instance each time at evalution stage
             if label[0, pairwise, row, col]:
                 n_bbox += 1
-                #x = (label[0, 3, row, col] + col) / COL
-                #y = (label[0, 4, row, col] + row) / ROW
-                x, y = label[0, 3:5, row, col]
+                x = (label[0, 3, row, col] + col) / COL
+                y = (label[0, 4, row, col] + row) / ROW
+                #x, y = label[0, 3:5, row, col]
                 w, h = label[0, 5:, row, col]
                 gd_list.append([x, y, w, h])
 

@@ -75,6 +75,8 @@ class Pair_Dataset(data.Dataset):
         """ Return normalized groundtruth bboxes space. """
         labela_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.xml")
         labelb_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.xml")
+        #labela_path = "/home/zq/diff_resnet/data/test/00590_a.xml"
+        #labelb_path = "/home/zq/diff_resnet/data/test/00590_b.xml"
         label = self.load_pair_label(labela_path, labelb_path)
         return index, im_a, im_b, label
 
@@ -88,7 +90,7 @@ class Pair_Dataset(data.Dataset):
     ###################################################
     def get_label(self, label_path):
         ROW, COL = self.label_shape[1], self.label_shape[2]
-        label = np.zeros((5, ROW, COL))
+        label = np.zeros((5, 7, 7)) # FIXED
         if osp.exists(label_path):
             tree = ET.parse(label_path)
             im_size = tree.findall("size")[0]
@@ -103,18 +105,9 @@ class Pair_Dataset(data.Dataset):
                             (t_boxes[1] + t_boxes[3])/(2.0*oh), # center y
                             (t_boxes[2] - t_boxes[0])*1.0/ow,  # w
                             (t_boxes[3] - t_boxes[1])*1.0/oh]) # h
-                print ((t_boxes[0] + t_boxes[2])/(2.0), (t_boxes[1] + t_boxes[3])/(2.0), (t_boxes[2] - t_boxes[0])*1.0, (t_boxes[3] - t_boxes[1])*1.0)
-            """
-            # scale and correct boxes(cuz we resize input images to scale_size*scale_size)
-            for i in range(len(bboxes)):
-                midx, midy, w, h = bboxes[i][1:]
-                #scale_bbox = [midx/sx, midy/sy, w/sx, h/sy]
-                norm_bbox = [x*1./scale_size for x in scale_bbox]
-                bboxes[i][1:] = norm_bbox
-                #print ("norm_bbox", norm_bbox)
-            """
+            #print ("*"* 30)
+            #print (bboxes)
 
-            # In python3 range is a generator object - it does not return a list. Convert it to a list before shuffling
             lst = list(range(len(bboxes)))       
             shuffle(lst)
             for i in lst:
@@ -123,7 +116,7 @@ class Pair_Dataset(data.Dataset):
                 if (w < 0.01 or h < 0.01):
                     continue
                 col, row = int(x * self.label_shape[2]), int(y * self.label_shape[1])
-                #x, y = x * self.label_shape[2] - col, y * self.label_shape[1] - row
+                x, y = x * self.label_shape[2] - col, y * self.label_shape[1] - row
                 if label[0, row, col] != 0:
                     continue
                 label[0, row, col] = 1
@@ -138,7 +131,7 @@ class Pair_Dataset(data.Dataset):
                     label[0, row, col] = 1
                     label[1, row, col] = 1
                     label[3:7, row, col] = labela[1:, row, col]
-                if labelb[1, row, col] == 1 and label[2, row, col] == 0 and label[1, row ,col] == 0:
+                if labelb[0, row, col] == 1 and label[2, row, col] == 0 and label[1, row ,col] == 0:
                     label[0, row, col] = 1
                     label[2, row, col] = 1
                     label[3:7, row, col] = labelb[1:, row, col]
@@ -164,16 +157,17 @@ if __name__ == "__main__":
                              num_workers=0)
     #print (np.sort(train_dataset.imkey_list))
     #print (len(train_dataset.imkey_list))
-    #exit()
     #for ii, (im, label) in enumerate(trainloader):
     imkeys = train_dataset.imkey_list
-    for ii, (index, im_a, im_b, labela, labelb) in enumerate(trainloader):
+    for ii, (index, im_a, im_b, label) in enumerate(trainloader):
         #print (ii, im_a.size(), labela.shape, im_b.size(), labelb.shape)
         #print (type(im_a), type(labela))
         #print (labela.shape[2]*labela.shape[3])
         #print (index[:], "-----", ii)
         #print (imkeys[index[0]])
         #exit()
+        print (label)
+        exit()
         pass
 
         """

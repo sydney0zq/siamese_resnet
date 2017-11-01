@@ -68,14 +68,18 @@ def evaluate(args):
         loss = criterion(label, pred)
         running_loss += loss.data[0]
         #print (" | Eval {} Loss {:.2f}".format(ii+1, loss.data[0])) 
-        #print (" | Now start to generate detection files and render results...")
         
         imkey = int(imkey_list[index[0]])
+        imkey = 589
         imsize = getimsize(args.test_dir, imkey)
         # deta_crd and gda_crd are both (midx, midy, w, h)
+        print (imkey)
+        print (label)
         gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
-        deta_str, deta_crd = parse_det(pred, imkey, imsize, 1)
-        detb_str, detb_crd = parse_det(pred, imkey, imsize, 2)
+        print (gda_crd, gdb_crd)
+        exit()
+        #deta_str, deta_crd = parse_det(pred, imkey, imsize, 1)
+        #detb_str, detb_crd = parse_det(pred, imkey, imsize, 2)
         #print (ave_iou(deta_crd, gda_crd))
         #print (ave_iou(detb_crd, gdb_crd))
 
@@ -84,7 +88,7 @@ def evaluate(args):
         #fb.write(detb_str)
         
         # Render predictions
-        detrender(args.test_dir, imkey, deta_crd, detb_crd, args.resdir)
+        #detrender(args.test_dir, imkey, deta_crd, detb_crd, args.resdir)
 
         labelrender(args.resdir, imkey, gda_crd, gdb_crd)
 
@@ -113,10 +117,28 @@ def parse():
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     return args
 
+
+def u_test(args):
+    dataloader = {}
+    dataclass = Pair_Dataset(args.test_dir, train=False)
+    imkey_list = dataclass.imkey_list
+    dataloader["test"] = DataLoader(dataclass, 1, shuffle=False, num_workers=args.num_workers)
+    for ii, (index, im_a, im_b, label) in enumerate(dataloader["test"]):
+        label = Variable(label)
+        imkey = int(imkey_list[index[0]])
+        imsize = getimsize(args.test_dir, imkey)
+        # deta_crd and gda_crd are both (midx, midy, w, h)
+        print (label)
+        gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
+        print (gda_crd, gdb_crd)
+
+        labelrender(args.resdir, imkey, gda_crd, gdb_crd)
+
+
+
 if __name__ == "__main__":
     args = parse()
-    evaluate(args)
-
-
+    #evaluate(args)
+    u_test(args)
 
 
