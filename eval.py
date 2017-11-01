@@ -65,24 +65,23 @@ def evaluate(args):
             label = label.cuda()
         pred = model(inp_a, inp_b)
         loss = criterion(label, pred)
-        #running_loss += loss.data[0]
+        running_loss += loss.data[0]
         imkey = int(imkey_list[index[0]])
         imsize = getimsize(args.test_dir, imkey)
         # deta_crd and gda_crd are both (midx, midy, w, h)
         gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
-        #deta_str, deta_crd = parse_det(pred, imkey, imsize, 1)
-        #detb_str, detb_crd = parse_det(pred, imkey, imsize, 2)
+        deta_str, deta_crd = parse_det(pred, imkey, imsize, 1)
+        detb_str, detb_crd = parse_det(pred, imkey, imsize, 2)
         #print (ave_iou(deta_crd, gda_crd))
         #print (ave_iou(detb_crd, gdb_crd))
 
         # Write str to det files
-        #fa.write(deta_str)
-        #fb.write(detb_str)
+        fa.write(deta_str)
+        fb.write(detb_str)
         
         # Render predictions
-        #detrender(args.test_dir, imkey, deta_crd, detb_crd, args.resdir)
-
-        labelrender(args.resdir, imkey, gda_crd, gdb_crd)
+        detrender(args.test_dir, imkey, deta_crd, detb_crd, args.resdir)
+        labelrender(args.test_dir, args.resdir, imkey, gda_crd, gdb_crd)
 
     fa.close()
     fb.close()

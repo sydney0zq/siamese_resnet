@@ -106,13 +106,13 @@ def detrender(srcdir, imkey, deta_crd, detb_crd, resdir, color="red"):
     im_a.save(osp.join(resdir, "{:05d}".format(imkey)+"_render_a.jpg"))
     im_b.save(osp.join(resdir, "{:05d}".format(imkey)+"_render_b.jpg"))
 
-def labelrender(resdir, imkey, gda_crd, gdb_crd, color="green"):
+def labelrender(srcdir, resdir, imkey, gda_crd, gdb_crd, color="green"):
     if osp.exists(osp.join(resdir, "{:05d}".format(imkey)+"_render_a.jpg")):
         im_ra = Image.open(osp.join(resdir, "{:05d}".format(imkey)+"_render_a.jpg"))
         im_rb = Image.open(osp.join(resdir, "{:05d}".format(imkey)+"_render_b.jpg"))
-    elif osp.exists(osp.join(resdir, "{:05d}".format(imkey)+"_a.jpg")):
-        im_ra = Image.open(osp.join(resdir, "{:05d}".format(imkey)+"_a.jpg"))
-        im_rb = Image.open(osp.join(resdir, "{:05d}".format(imkey)+"_b.jpg"))
+    else:
+        im_ra = Image.open(osp.join(srcdir, "{:05d}".format(imkey)+"_a.jpg"))
+        im_rb = Image.open(osp.join(srcdir, "{:05d}".format(imkey)+"_b.jpg"))
 
     for i_gd in gda_crd:
         draw_bbox(im_ra, i_gd, color)
