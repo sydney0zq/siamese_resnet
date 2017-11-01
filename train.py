@@ -110,7 +110,7 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="", 
                             help="Give a model to test.")
-    parser.add_argument('--lr', type=float, default=0.001, 
+    parser.add_argument('--lr', type=float, default=0.01, 
                             help="Learning rate for optimizing method.")
     parser.add_argument('--lr_stepsize', type=int, default=30, 
                             help="Control exponent learning rate decay..")

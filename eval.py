@@ -68,6 +68,7 @@ def evaluate(args):
         running_loss += loss.data[0]
         imkey = int(imkey_list[index[0]])
         imsize = getimsize(args.test_dir, imkey)
+
         # deta_crd and gda_crd are both (midx, midy, w, h)
         gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
         deta_str, deta_crd = parse_det(pred, imkey, imsize, 1)
