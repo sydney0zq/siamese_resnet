@@ -67,12 +67,12 @@ def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
                 det = det.reshape(1, 5)
             else:
                 temp = np.zeros((1, 5))
+                temp[0, 0] = pred[0, 0, row, col] * pred[0, pairwise, row, col]
                 temp[0, 1] = (pred[0, 3, row, col] + col) / COL
                 temp[0, 2] = (pred[0, 4, row, col] + row) / ROW
                 temp[0, 3:] = pred[0, 5:, row, col]
                 temp = temp.reshape(1, 5)
                 det = np.vstack((det, temp))
-
     det_len = det.shape[0]
 
     for i in range(det_len):
@@ -83,8 +83,8 @@ def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
         oriw, orih = int(detw*ow*sx), int(deth*oh*sy)
         det[i, 1:] = orix, oriy, oriw, orih
     
-    #det_list = nms(det)
-    det_list = det
+    det_list = nms(det)
+    #det_list = det
     det_len = len(det_list)
 
     det_str = ""

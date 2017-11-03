@@ -34,7 +34,7 @@ from utils import getimsize, detrender, labelrender, parse_det, parse_gd
 
 def evaluate(args):
     ### DATA ###
-    dataclass = Pair_Dataset(args.test_dir, train=False)
+    dataclass = Pair_Dataset(args.test_dir, test=True)
     imkey_list = dataclass.imkey_list
     dataloader = {}
     dataloader["test"] = DataLoader(dataclass,
@@ -120,7 +120,7 @@ def u_test(args):
     dataloader = {}
     dataclass = Pair_Dataset(args.test_dir, train=False)
     imkey_list = dataclass.imkey_list
-    dataloader["test"] = DataLoader(dataclass, 1, shuffle=False, num_workers=args.num_workers)
+    dataloader["test"] = DataLoader(dataclass, 1, shuffle=False, num_workers=args.num_workers, test=True)
     for ii, (index, im_a, im_b, label) in enumerate(dataloader["test"]):
         label = Variable(label)
         imkey = int(imkey_list[index[0]])
