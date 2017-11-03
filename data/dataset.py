@@ -139,6 +139,7 @@ class Pair_Dataset(data.Dataset):
                     swap = left
                     left = 1.0 - right
                     right = 1.0 - swap
+                
                 left = constrain(0, 1, left)
                 right = constrain(0, 1, right)
                 top = constrain(0, 1, top)
@@ -148,6 +149,9 @@ class Pair_Dataset(data.Dataset):
                 boxes[i][2] = (top + bottom) / 2
                 boxes[i][3] = constrain(0, 1, right - left) 
                 boxes[i][4] = constrain(0, 1, bottom - top)
+            if label_path == "./test/00583_b.xml" or label_path == "./test/00583_a.xml":
+                print (boxes)
+                print (sx, sy, dx, dy)
 
             lst = list(range(len(boxes)))       
             shuffle(lst)
@@ -161,6 +165,8 @@ class Pair_Dataset(data.Dataset):
                 if label[0, row, col] != 0:
                     continue
                 label[:, row, col] = 1, x, y, w, h
+            if label_path == "./test/00583_b.xml" or label_path == "./test/00583_a.xml":
+                print (label)
         return label
     
     def mergelabel(self, labela, labelb):

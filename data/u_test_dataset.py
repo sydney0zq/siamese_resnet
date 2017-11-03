@@ -98,6 +98,7 @@ def parse_gd_test(label, imsize, pairwise, scale_size=512):
                 n_bbox += 1
                 x = (label[0, 3, row, col] + col) / COL
                 y = (label[0, 4, row, col] + row) / ROW
+               # x, y = label[0, 3:5, row, col]
                 w, h = label[0, 5:, row, col]
                 gd_list.append([x, y, w, h])
 
@@ -111,24 +112,24 @@ def parse_gd_test(label, imsize, pairwise, scale_size=512):
 
 def u_test():
     utest_dir = "./u_test"
-    dataset_dir = "./temp"
+    dataset_dir = "./test"
     utest_dataset = Pair_Dataset(dataset_dir, test=True)
     utestloader = DataLoader(utest_dataset, batch_size = 1, shuffle=True, num_workers=1)
     imkeys = utest_dataset.imkey_list
 
     for ii, (index, im_a, im_b, label) in enumerate(utestloader):
-
         imkey = imkeys[index[0]]
-        imap = "./temp/" + imkey + "_a.jpg"
-        imbp = "./temp/" + imkey + "_b.jpg"
-        ima = Image.open(imap)
-        imb = Image.open(imbp)
-        print (imkey)
-        imsize = getimsize(dataset_dir, imkey)
-        gda_crd, gdb_crd = parse_gd_test(label, imsize, 1), parse_gd_test(label, imsize, 2)
-        labelrender(ima, imb, imkey, gda_crd, gdb_crd)
-        print (gda_crd)
-        print (gdb_crd)
+        if imkey == "00583":
+            imap = "./test/" + imkey + "_a.jpg"
+            imbp = "./test/" + imkey + "_b.jpg"
+            ima = Image.open(imap)
+            imb = Image.open(imbp)
+            print (imkey)
+            imsize = getimsize(dataset_dir, imkey)
+            gda_crd, gdb_crd = parse_gd_test(label, imsize, 1), parse_gd_test(label, imsize, 2)
+            labelrender(ima, imb, imkey, gda_crd, gdb_crd)
+            print (gda_crd)
+            print (gdb_crd)
 
         """ LOAD IMAGES TO 512x512 size
         #im_a = im_a.view(-1, 512, 512)  # Should be 3x512x512
