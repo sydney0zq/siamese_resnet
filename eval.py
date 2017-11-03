@@ -81,8 +81,8 @@ def evaluate(args):
         fb.write(detb_str)
         
         # Render predictions
-        detrender(args.test_dir, imkey, deta_crd, detb_crd, args.resdir)
-        labelrender(args.test_dir, args.resdir, imkey, gda_crd, gdb_crd)
+        detrender(args.test_dir, imkey, deta_crd, detb_crd, args.desdir)
+        labelrender(args.test_dir, args.desdir, imkey, gda_crd, gdb_crd)
 
     fa.close()
     fb.close()
@@ -102,7 +102,7 @@ def parse():
                             help="Detection result filename of image a.")
     parser.add_argument('--detb_fn', type=str, default="./result/det_b.txt", 
                             help="Detection result filename of image b.")
-    parser.add_argument('--resdir', type=str, default="./result",
+    parser.add_argument('--desdir', type=str, default="./result",
                             help="Rendered image directory.")
 
     args = parser.parse_args()
@@ -124,7 +124,7 @@ def u_test(args):
         gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
         print (gda_crd, gdb_crd)
 
-        labelrender(args.resdir, imkey, gda_crd, gdb_crd)
+        labelrender(args.desdir, imkey, gda_crd, gdb_crd)
 
 
 

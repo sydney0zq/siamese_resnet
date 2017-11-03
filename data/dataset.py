@@ -31,9 +31,6 @@ def constrain(min_val, max_val, val):
 
 class Pair_Dataset(data.Dataset):
 
-    """
-        label_shape: 10 means __(00, 01, 10, 11)________(two boundingboxes)
-    """
     def __init__(self, im_root, scale_size=512, label_shape=(7, 7, 7), transforms=None, train=True, test=False):
         """Get all images and spearate dataset to training and testing set."""
         self.test, self.train = test, train
@@ -57,61 +54,105 @@ class Pair_Dataset(data.Dataset):
             normalize = T.Normalize(mean=[0.485, 0.456, 0.406],
                                     std =[0.229, 0.224, 0.225])
             # No enhancement on training and validating set
-            self.transforms = T.Compose([T.Scale((scale_size, scale_size)), 
-                                         T.CenterCrop((scale_size, scale_size)),
-                                         T.ToTensor(), normalize]) #T.RandomHorizontalFlip(),
-                                         #T.ToTensor()]) #T.RandomHorizontalFlip(),
+            self.transforms = T.Compose([T.ToTensor()])
+                    #, normalize])
 
     def __getitem__(self, index):
-        """ Return a pair of images and their corrsponding bounding box. """
-        im_a_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.jpg")
-        im_b_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.jpg")
-        im_a, im_b = Image.open(im_a_path), Image.open(im_b_path)
-        im_a = self.transforms(im_a)
-        im_b = self.transforms(im_b)
-        if random.uniform(0, 1) > 0.5:
-            im_a, im_b = im_b, im_a
+        """ Return a pair of images. """
+        ima_path = osp.join(self.im_root, self.imkey_list[index]+"_a.jpg")
+        imb_path = osp.join(self.im_root, self.imkey_list[index]+"_b.jpg")
+        im_a, im_b, flip, dx, dy, sx, sy = self.load_pair_im(ima_path, imb_path)
+
+        #if random.uniform(0, 1) > 0.5:
+        #    im_a, im_b = im_b, im_a
 
         """ Return normalized groundtruth bboxes space. """
-        labela_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_a.xml")
-        labelb_path = osp.join(self.im_root, "{:05d}".format(self.imkey_list[index])+"_b.xml")
+        labela_path = osp.join(self.im_root, self.imkey_list[index]+"_a.xml")
+        labelb_path = osp.join(self.im_root, self.imkey_list[index]+"_b.xml")
         #labela_path = "/home/zq/diff_resnet/data/test/00590_a.xml"
         #labelb_path = "/home/zq/diff_resnet/data/test/00590_b.xml"
-        label = self.load_pair_label(labela_path, labelb_path)
+        label = self.load_pair_label(labela_path, labelb_path, flip, dx, dy, 1.0/sx, 1.0/sy)
         return index, im_a, im_b, label
 
-    def load_pair_label(self, labela_path, labelb_path):
-        labela = self.get_label(labela_path)
-        labelb = self.get_label(labelb_path)
+    def load_pair_im(self, ima_path, imb_path):
+        """ Modify PAIR tagged code to make it to load single image """
+        im_ori, impair_ori = Image.open(ima_path), Image.open(imb_path) #PAIR
+        ow, oh = im_ori.size[0], im_ori.size[1]
+        if self.train == True:
+            jitter = 0.2
+            dw, dh = int(ow*jitter), int(oh*jitter)
+            pleft, pright = random.randint(-dw, dw), random.randint(-dw, dw)
+            ptop,  pbot   = random.randint(-dh, dh), random.randint(-dh, dh)
+            swidth, sheight = ow-pleft-pright, oh-ptop-pbot     # image size after random
+            sx, sy = float(swidth) / ow, float(sheight) / oh
+            flip   = (random.uniform(0, 1) > 0.5)
+            im_cropped = im_ori.crop((pleft, ptop, ow-pright, oh-pbot))    # (left, upper, right, lower)
+            impair_cropped = impair_ori.crop((pleft, ptop, ow-pright, oh-pbot)) #PAIR
+            dx, dy = (float(pleft)/ow)/sx, (float(ptop)/oh)/sy
+            im_sized = im_cropped.resize((self.scale_size, self.scale_size))
+            impair_sized = impair_cropped.resize((self.scale_size, self.scale_size)) #PAIR
+            if flip:
+                im_sized = im_sized.transpose(Image.FLIP_LEFT_RIGHT)
+                impair_sized = impair_sized.transpose(Image.FLIP_LEFT_RIGHT) #PAIR
+        else:
+            dx = dy = 0
+            flip = False
+            im_sized = im_ori.resize((self.scale_size, self.scale_size))
+            impair_sized = impair_ori.resize((self.scale_size, self.scale_size)) #PAIR
+            sx, sy = float(self.scale_size) / ow, float(self.scale_size) / oh
+        im  = self.transforms(im_sized) # Normalize and adjust the mean and var
+        impair = self.transforms(impair_sized) #PAIR
+
+        return im, impair, flip, dx, dy, sx, sy
+    
+
+    def load_pair_label(self, labela_path, labelb_path, flip, dx, dy, sx, sy):
+        labela = self.get_label(labela_path, flip, dx, dy, sx, sy)
+        labelb = self.get_label(labelb_path, flip, dx, dy, sx, sy)
         return self.mergelabel(labela, labelb)
 
-    ###################################################
-    # GET LABEL TO STANDARD FORMAT
-    ###################################################
-    def get_label(self, label_path):
+    # GET LABEL TO STANDARD FORMAT, 5x7x7
+    def get_label(self, label_path, flip, dx, dy, sx, sy):
         ROW, COL = self.label_shape[1], self.label_shape[2]
         label = np.zeros((5, 7, 7)) # FIXED
         if osp.exists(label_path):
             tree = ET.parse(label_path)
             im_size = tree.findall("size")[0]
             ow, oh = int(im_size.find("width").text), int(im_size.find("height").text)
-            bboxes = []
+            boxes = []
             for obj in tree.findall('object'):
                 bbox = obj.find('bndbox')
                 t_boxes = [int(bbox.find('xmin').text), int(bbox.find('ymin').text),
                            int(bbox.find('xmax').text), int(bbox.find('ymax').text)] 
-                bboxes.append([1,
+                boxes.append([1,
                             (t_boxes[0] + t_boxes[2])/(2.0*ow), # center x
                             (t_boxes[1] + t_boxes[3])/(2.0*oh), # center y
                             (t_boxes[2] - t_boxes[0])*1.0/ow,  # w
                             (t_boxes[3] - t_boxes[1])*1.0/oh]) # h
-            #print ("*"* 30)
-            #print (bboxes)
+            ### Correct boxes ###
+            for i in range(len(boxes)):
+                left = (boxes[i][1] - boxes[i][3] / 2) * sx - dx
+                right = (boxes[i][1] + boxes[i][3] / 2) * sx - dx
+                top = (boxes[i][2] - boxes[i][4] / 2) * sy - dy
+                bottom = (boxes[i][2] + boxes[i][4] / 2) * sy - dy
+                if flip:
+                    swap = left
+                    left = 1.0 - right
+                    right = 1.0 - swap
+                left = constrain(0, 1, left)
+                right = constrain(0, 1, right)
+                top = constrain(0, 1, top)
+                bottom = constrain(0, 1, bottom)
+                
+                boxes[i][1] = (left + right) / 2
+                boxes[i][2] = (top + bottom) / 2
+                boxes[i][3] = constrain(0, 1, right - left) 
+                boxes[i][4] = constrain(0, 1, bottom - top)
 
-            lst = list(range(len(bboxes)))       
+            lst = list(range(len(boxes)))       
             shuffle(lst)
             for i in lst:
-                x, y, w, h = bboxes[i][1:]
+                x, y, w, h = boxes[i][1:]
                 x, y, w, h = constrain(0, 1, x), constrain(0, 1, y), constrain(0, 1, w), constrain(0, 1, h)
                 if (w < 0.01 or h < 0.01):
                     continue
@@ -119,8 +160,7 @@ class Pair_Dataset(data.Dataset):
                 x, y = x * self.label_shape[2] - col, y * self.label_shape[1] - row
                 if label[0, row, col] != 0:
                     continue
-                label[0, row, col] = 1
-                label[1:, row, col] = x, y, w, h
+                label[:, row, col] = 1, x, y, w, h
         return label
     
     def mergelabel(self, labela, labelb):
@@ -140,8 +180,8 @@ class Pair_Dataset(data.Dataset):
     def get_imkeylist(self):
         imkey_list = []
         for i in os.listdir(self.im_root):
-            if i[-3:] == "jpg" and (int(i[:-6]) not in imkey_list) and ("diff" not in i):
-                imkey_list.append(int(i[:-6]))
+            if i[-3:] == "jpg" and (i[:-6] not in imkey_list):
+                imkey_list.append(i[:-6])
         return imkey_list
     
     def __len__(self):
