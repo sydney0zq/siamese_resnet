@@ -49,11 +49,12 @@ def parse_gd(label, imsize, pairwise, scale_size=512):
 
     return gd_list
 
-def parse_det(pred, imkey, imsize, pairwise):
+def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
     #det result: prob_obj, pa, pb, x, y, w, h -- normalized
     ROW, COL = pred.size()[2:]
     det = np.zeros((1, 5))
     ow, oh = imsize
+    sx, sy = scale_size*1.0/ow, scale_size*1.0/oh
 
     pred = pred.data.cpu().numpy()
     for row in range(ROW):
@@ -78,11 +79,12 @@ def parse_det(pred, imkey, imsize, pairwise):
         # detx means det_midx; dety means det_midy
         # Recover to origin size
         detx, dety, detw, deth = det[i, 1:]
-        orix, oriy = int(detx*ow), int(dety*oh)
-        oriw, orih = int(detw*ow), int(deth*oh)
+        orix, oriy = int(detx*ow*sx), int(dety*oh*sy)
+        oriw, orih = int(detw*ow*sx), int(deth*oh*sy)
         det[i, 1:] = orix, oriy, oriw, orih
     
-    det_list = nms(det)
+    #det_list = nms(det)
+    det_list = det
     det_len = len(det_list)
 
     det_str = ""
@@ -97,7 +99,7 @@ def parse_det(pred, imkey, imsize, pairwise):
 
 ### RENDER AREA ###
 """ All Renders receive list format result """
-def detrender(srcdir, imkey, deta_crd, detb_crd, desdir, color="red"):
+def detrender(srcdir, desdir, imkey, deta_crd, detb_crd, font, color="red"):
     im_a = Image.open(osp.join(srcdir, imkey+"_a.jpg"))
     im_b = Image.open(osp.join(srcdir, imkey+"_b.jpg"))
     for i_det in deta_crd:

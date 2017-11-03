@@ -85,7 +85,7 @@ def evaluate(args):
         fb.write(detb_str)
         
         # Render predictions
-        detrender(args.test_dir, imkey, deta_crd, detb_crd, args.desdir)
+        detrender(args.test_dir, args.desdir, imkey, deta_crd, detb_crd, font)
         labelrender(args.test_dir, args.desdir, imkey, gda_crd, gdb_crd)
 
     fa.close()

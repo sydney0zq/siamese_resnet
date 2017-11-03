@@ -129,7 +129,6 @@ def u_test():
         labelrender(ima, imb, imkey, gda_crd, gdb_crd)
         print (gda_crd)
         print (gdb_crd)
-        exit()
 
         """ LOAD IMAGES TO 512x512 size
         #im_a = im_a.view(-1, 512, 512)  # Should be 3x512x512
