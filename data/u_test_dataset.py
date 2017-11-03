@@ -66,7 +66,6 @@ def parse_gd_train(label, imsize, pairwise, scale_size=512):
     sx, sy = scale_size*1.0/ow, scale_size*1.0/oh
     for row in range(ROW):
         for col in range(COL):
-            # Generate groundtruth list
             # We only have one instance each time at evalution stage
             if label[0, pairwise, row, col]:
                 n_bbox += 1
@@ -119,6 +118,7 @@ def u_test():
 
     for ii, (index, im_a, im_b, label) in enumerate(utestloader):
         imkey = imkeys[index[0]]
+        """
         if imkey == "00583":
             imap = "./test/" + imkey + "_a.jpg"
             imbp = "./test/" + imkey + "_b.jpg"
@@ -130,9 +130,9 @@ def u_test():
             labelrender(ima, imb, imkey, gda_crd, gdb_crd)
             print (gda_crd)
             print (gdb_crd)
-
-        """ LOAD IMAGES TO 512x512 size
-        #im_a = im_a.view(-1, 512, 512)  # Should be 3x512x512
+        """
+        """ LOAD IMAGES TO 512x512 size"""
+        im_a = im_a.view(-1, 512, 512)  # Should be 3x512x512
         imapil = transforms.ToPILImage()(im_a)
         im_b = im_b.view(-1, 512, 512)
         imbpil = transforms.ToPILImage()(im_b)
@@ -141,7 +141,7 @@ def u_test():
         imsize = getimsize(dataset_dir, imkey)
         gda_crd, gdb_crd = parse_gd_train(label, imsize, 1), parse_gd_train(label, imsize, 2)
         labelrender(imapil, imbpil, imkey, gda_crd, gdb_crd)
-        """    
+        
     
 
 
