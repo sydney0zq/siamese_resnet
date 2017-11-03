@@ -23,13 +23,14 @@ f2s = lambda x: str(float(x))
 
 # label is 7x7x7
 # pred  is 7x7x7
+""" NOTE sx and sy is 1 and 1 """
 def parse_gd(label, imsize, pairwise, scale_size=512):
     ROW, COL = label.size()[2:]
     gd_list = []
     n_bbox = 0
     ow, oh = imsize
-    sx, sy = scale_size*1.0/ow, scale_size*1.0/oh
     label = label.data.cpu().numpy()
+    sx, sy = 1, 1
 
     for row in range(ROW):
         for col in range(COL):
@@ -43,8 +44,9 @@ def parse_gd(label, imsize, pairwise, scale_size=512):
 
     for i in range(n_bbox):
         gdx, gdy, gdw, gdh = gd_list[i][:]
-        gdx,  gdy  = ow*gdx*sx, oh*gdy*sy
-        gdw,  gdh  = ow*gdw*sx, oh*gdh*sy
+        ### USE FOLLOW CODE TO RECOVER TO ORIGIN SIZE, WITH BUGGY###
+        gdx,  gdy  = scale_size*gdx*sx, scale_size*gdy*sy
+        gdw,  gdh  = scale_size*gdw*sx, scale_size*gdh*sy
         gd_list[i][:] = gdx, gdy, gdw, gdh
 
     return gd_list
@@ -54,7 +56,7 @@ def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
     ROW, COL = pred.size()[2:]
     det = np.zeros((1, 5))
     ow, oh = imsize
-    sx, sy = scale_size*1.0/ow, scale_size*1.0/oh
+    sx, sy = 1, 1
 
     pred = pred.data.cpu().numpy()
     for row in range(ROW):
@@ -67,24 +69,26 @@ def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
                 det = det.reshape(1, 5)
             else:
                 temp = np.zeros((1, 5))
+                temp[0, 0] = pred[0, 0, row, col] * pred[0, pairwise, row, col]
                 temp[0, 1] = (pred[0, 3, row, col] + col) / COL
                 temp[0, 2] = (pred[0, 4, row, col] + row) / ROW
                 temp[0, 3:] = pred[0, 5:, row, col]
                 temp = temp.reshape(1, 5)
                 det = np.vstack((det, temp))
 
-    det_len = det.shape[0]
-
-    for i in range(det_len):
+    for i in range(det.shape[0]):
         # detx means det_midx; dety means det_midy
         # Recover to origin size
         detx, dety, detw, deth = det[i, 1:]
-        orix, oriy = int(detx*ow*sx), int(dety*oh*sy)
-        oriw, orih = int(detw*ow*sx), int(deth*oh*sy)
+        """USE THE FOLLOW CODE TO RECOVER FROM ORIGIN IMAGES, WITH BUGGY"""
+        #orix, oriy = int(detx*ow*sx), int(dety*oh*sy)
+        #oriw, orih = int(detw*ow*sx), int(deth*oh*sy)
+        orix, oriy = int(detx*scale_size*sx), int(dety*scale_size*sy)
+        oriw, orih = int(detw*scale_size*sx), int(deth*scale_size*sy)
         det[i, 1:] = orix, oriy, oriw, orih
     
-    #det_list = nms(det)
-    det_list = det
+    det_list = nms(det)
+    #det_list = det
     det_len = len(det_list)
 
     det_str = ""
@@ -111,13 +115,25 @@ def detrender(srcdir, desdir, imkey, deta_crd, detb_crd, font, color="red"):
     im_a.save(osp.join(desdir, imkey+"_render_a.jpg"))
     im_b.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
+def detrender_t(im_a, im_b, desdir, imkey, deta_crd, detb_crd, font, color="red"):
+    for i_det in deta_crd:
+        draw_bbox(im_a, i_det[1:], color)
+        draw_prob(im_a, i_det, font, color)
+    for i_det in detb_crd:
+        draw_bbox(im_b, i_det[1:], color)
+        draw_prob(im_b, i_det, font, color)
+    im_a.save(osp.join(desdir, imkey+"_render_a.jpg"))
+    im_b.save(osp.join(desdir, imkey+"_render_b.jpg"))
+
 def labelrender(srcdir, desdir, imkey, gda_crd, gdb_crd, color="green"):
+    """ USE FOLLOW CODE TO RENDER FROM ORIGIN IMAGES, WITH BUGGY
     if osp.exists(osp.join(desdir, imkey+"_render_a.jpg")):
         im_ra = Image.open(osp.join(desdir, imkey+"_render_a.jpg"))
         im_rb = Image.open(osp.join(desdir, imkey+"_render_b.jpg"))
     else:
         im_ra = Image.open(osp.join(srcdir, imkey+"_a.jpg"))
         im_rb = Image.open(osp.join(srcdir, imkey+"_b.jpg"))
+    """
 
     for i_gd in gda_crd:
         draw_bbox(im_ra, i_gd, color)

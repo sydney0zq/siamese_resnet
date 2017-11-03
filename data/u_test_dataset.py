@@ -57,32 +57,7 @@ def draw_bbox(im, bbox, color="red"):
     draw_im.line([xmin, ymax, xmax, ymax], fill=color)
     del draw_im
 
-def parse_gd_train(label, imsize, pairwise, scale_size=512):
-    """ NO jitter data augmentation when testing. """
-    ROW, COL = label.size()[2:]
-    gd_list = []
-    n_bbox = 0
-    ow, oh = imsize
-    sx, sy = scale_size*1.0/ow, scale_size*1.0/oh
-    for row in range(ROW):
-        for col in range(COL):
-            # We only have one instance each time at evalution stage
-            if label[0, pairwise, row, col]:
-                n_bbox += 1
-                x = (label[0, 3, row, col] + col) / COL
-                y = (label[0, 4, row, col] + row) / ROW
-                w, h = label[0, 5:, row, col]
-                gd_list.append([x, y, w, h])
-
-    for i in range(n_bbox):
-        gdx, gdy, gdw, gdh = gd_list[i][:]
-        gdx,  gdy  = ow*gdx*sx, oh*gdy*sy
-        gdw,  gdh  = ow*gdw*sx, oh*gdh*sy
-        gd_list[i][:] = gdx, gdy, gdw, gdh
-
-    return gd_list
-
-def parse_gd_test(label, imsize, pairwise, scale_size=512):
+def parse_gd(label, imsize, pairwise, scale_size=512):
     """ NO jitter data augmentation when testing. """
     ROW, COL = label.size()[2:]
     gd_list = []
@@ -105,6 +80,33 @@ def parse_gd_test(label, imsize, pairwise, scale_size=512):
         gdx, gdy, gdw, gdh = gd_list[i][:]
         gdx,  gdy  = ow*gdx*sx, oh*gdy*sy
         gdw,  gdh  = ow*gdw*sx, oh*gdh*sy
+        gd_list[i][:] = gdx, gdy, gdw, gdh
+
+    return gd_list
+
+def parse_gd(label, imsize, pairwise, scale_size=512):
+    """ NO jitter data augmentation when testing. """
+    ROW, COL = label.size()[2:]
+    gd_list = []
+    n_bbox = 0
+    ow, oh = imsize
+    sx, sy = scale_size*1.0/ow, scale_size*1.0/oh
+    for row in range(ROW):
+        for col in range(COL):
+            # Generate groundtruth list
+            # We only have one instance each time at evalution stage
+            if label[0, pairwise, row, col]:
+                n_bbox += 1
+                x = (label[0, 3, row, col] + col) / COL
+                y = (label[0, 4, row, col] + row) / ROW
+               # x, y = label[0, 3:5, row, col]
+                w, h = label[0, 5:, row, col]
+                gd_list.append([x, y, w, h])
+
+    for i in range(n_bbox):
+        gdx, gdy, gdw, gdh = gd_list[i][:]
+        gdx,  gdy  = scale_size*gdx*sx, scale_size*gdy*sy
+        gdw,  gdh  = scale_size*gdw*sx, scale_size*gdh*sy
         gd_list[i][:] = gdx, gdy, gdw, gdh
 
     return gd_list
@@ -132,15 +134,18 @@ def u_test():
             print (gdb_crd)
         """
         """ LOAD IMAGES TO 512x512 size"""
-        im_a = im_a.view(-1, 512, 512)  # Should be 3x512x512
-        imapil = transforms.ToPILImage()(im_a)
-        im_b = im_b.view(-1, 512, 512)
-        imbpil = transforms.ToPILImage()(im_b)
+        #im_a = im_a.view(-1, 512, 512)  # Should be 3x512x512
+        #imapil = transforms.ToPILImage()(im_a)
+        #im_b = im_b.view(-1, 512, 512)
+        #imbpil = transforms.ToPILImage()(im_b)
 
         # DRAW TRANSFORMED IMAGE AND LABEL
-        imsize = getimsize(dataset_dir, imkey)
-        gda_crd, gdb_crd = parse_gd_train(label, imsize, 1), parse_gd_train(label, imsize, 2)
-        labelrender(imapil, imbpil, imkey, gda_crd, gdb_crd)
+        #imsize = getimsize(dataset_dir, imkey)
+        #gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
+        #labelrender(imapil, imbpil, imkey, gda_crd, gdb_crd)
+        if imkey == "00557":
+            #print (label)
+            pass
         
     
 

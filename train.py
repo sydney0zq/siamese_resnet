@@ -117,7 +117,7 @@ def parse():
     parser.add_argument('--log_freq', type=int, default=10)
     # As a rule of thumb, the more training examples you have, the weaker this term should be. 
     # The more parameters you have the higher this term should be.
-    parser.add_argument('--weight_decay', type=float, default=1e-3,
+    parser.add_argument('--weight_decay', type=float, default=5e-4,
                             help="Goven the regularization term of the neural net.")
 
     args = parser.parse_args()
