@@ -31,7 +31,7 @@ def constrain(min_val, max_val, val):
 
 class Pair_Dataset(data.Dataset):
 
-    def __init__(self, im_root, scale_size=512, label_shape=(7, 7, 7), transforms=None, train=True, test=False):
+    def __init__(self, im_root, scale_size=512, label_shape=(7, 7, 7), transforms=None, train=False, test=False):
         """Get all images and spearate dataset to training and testing set."""
         self.test, self.train = test, train
         self.im_root = im_root
@@ -71,14 +71,14 @@ class Pair_Dataset(data.Dataset):
         labelb_path = osp.join(self.im_root, self.imkey_list[index]+"_b.xml")
         #labela_path = "/home/zq/diff_resnet/data/test/00590_a.xml"
         #labelb_path = "/home/zq/diff_resnet/data/test/00590_b.xml"
-        label = self.load_pair_label(labela_path, labelb_path, flip, dx, dy, 1.0/sx, 1.0/sy)
+        label = self.load_pair_label(labela_path, labelb_path, flip, dx, dy, sx, sy)
         return index, im_a, im_b, label
 
     def load_pair_im(self, ima_path, imb_path):
         """ Modify PAIR tagged code to make it to load single image """
         im_ori, impair_ori = Image.open(ima_path), Image.open(imb_path) #PAIR
         ow, oh = im_ori.size[0], im_ori.size[1]
-        if self.train == True:
+        if self.train == True and self.test == False and self.valid == False:
             jitter = 0.2
             dw, dh = int(ow*jitter), int(oh*jitter)
             pleft, pright = random.randint(-dw, dw), random.randint(-dw, dw)
@@ -88,7 +88,7 @@ class Pair_Dataset(data.Dataset):
             flip   = (random.uniform(0, 1) > 0.5)
             im_cropped = im_ori.crop((pleft, ptop, ow-pright, oh-pbot))    # (left, upper, right, lower)
             impair_cropped = impair_ori.crop((pleft, ptop, ow-pright, oh-pbot)) #PAIR
-            dx, dy = (float(pleft)/ow)/sx, (float(ptop)/oh)/sy
+            dx, dy = (float(pleft)/ow) / sx, (float(ptop)/oh) / sy
             im_sized = im_cropped.resize((self.scale_size, self.scale_size))
             impair_sized = impair_cropped.resize((self.scale_size, self.scale_size)) #PAIR
             if flip:
@@ -131,10 +131,10 @@ class Pair_Dataset(data.Dataset):
                             (t_boxes[3] - t_boxes[1])*1.0/oh]) # h
             ### Correct boxes ###
             for i in range(len(boxes)):
-                left = (boxes[i][1] - boxes[i][3] / 2) * sx - dx
-                right = (boxes[i][1] + boxes[i][3] / 2) * sx - dx
-                top = (boxes[i][2] - boxes[i][4] / 2) * sy - dy
-                bottom = (boxes[i][2] + boxes[i][4] / 2) * sy - dy
+                left = (boxes[i][1] - boxes[i][3] / 2) / sx - dx
+                right = (boxes[i][1] + boxes[i][3] / 2) / sx - dx
+                top = (boxes[i][2] - boxes[i][4] / 2) / sy - dy
+                bottom = (boxes[i][2] + boxes[i][4] / 2) / sy - dy
                 if flip:
                     swap = left
                     left = 1.0 - right

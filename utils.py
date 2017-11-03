@@ -21,31 +21,30 @@ from nms import nms
 floor = lambda x: math.floor(float(x))
 f2s = lambda x: str(float(x))
 
-
-# label is 5x7x7
+# label is 7x7x7
 # pred  is 7x7x7
-def parse_gd(label, imsize, pairwise):
+def parse_gd(label, imsize, pairwise, scale_size=512):
     ROW, COL = label.size()[2:]
     gd_list = []
     n_bbox = 0
     ow, oh = imsize
+    sx, sy = scale_size*1.0/ow, scale_size*1.0/oh
     label = label.data.cpu().numpy()
+
     for row in range(ROW):
         for col in range(COL):
-            # Generate groundtruth list
             # We only have one instance each time at evalution stage
             if label[0, pairwise, row, col]:
                 n_bbox += 1
                 x = (label[0, 3, row, col] + col) / COL
                 y = (label[0, 4, row, col] + row) / ROW
-                #x, y = label[0, 3:5, row, col]
                 w, h = label[0, 5:, row, col]
                 gd_list.append([x, y, w, h])
 
     for i in range(n_bbox):
         gdx, gdy, gdw, gdh = gd_list[i][:]
-        gdx,  gdy  = ow*gdx, oh*gdy
-        gdw,  gdh  = ow*gdw, oh*gdh
+        gdx,  gdy  = ow*gdx*sx, oh*gdy*sy
+        gdw,  gdh  = ow*gdw*sx, oh*gdh*sy
         gd_list[i][:] = gdx, gdy, gdw, gdh
 
     return gd_list
@@ -57,7 +56,6 @@ def parse_det(pred, imkey, imsize, pairwise):
     ow, oh = imsize
 
     pred = pred.data.cpu().numpy()
-
     for row in range(ROW):
         for col in range(COL):
             if row == 0 and col == 0:
@@ -84,8 +82,7 @@ def parse_det(pred, imkey, imsize, pairwise):
         oriw, orih = int(detw*ow), int(deth*oh)
         det[i, 1:] = orix, oriy, oriw, orih
     
-    #det_list = det[nms(det)]
-    det_list = det
+    det_list = nms(det)
     det_len = len(det_list)
 
     det_str = ""
@@ -100,20 +97,22 @@ def parse_det(pred, imkey, imsize, pairwise):
 
 ### RENDER AREA ###
 """ All Renders receive list format result """
-def detrender(srcdir, imkey, deta_crd, detb_crd, resdir, color="red"):
+def detrender(srcdir, imkey, deta_crd, detb_crd, desdir, color="red"):
     im_a = Image.open(osp.join(srcdir, imkey+"_a.jpg"))
     im_b = Image.open(osp.join(srcdir, imkey+"_b.jpg"))
     for i_det in deta_crd:
         draw_bbox(im_a, i_det[1:], color)
+        draw_prob(im_a, i_det, font, color)
     for i_det in detb_crd:
         draw_bbox(im_b, i_det[1:], color)
-    im_a.save(osp.join(resdir, imkey+"_render_a.jpg"))
-    im_b.save(osp.join(resdir, imkey+"_render_b.jpg"))
+        draw_prob(im_b, i_det, font, color)
+    im_a.save(osp.join(desdir, imkey+"_render_a.jpg"))
+    im_b.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
-def labelrender(srcdir, resdir, imkey, gda_crd, gdb_crd, color="green"):
-    if osp.exists(osp.join(resdir, imkey+"_render_a.jpg")):
-        im_ra = Image.open(osp.join(resdir, imkey+"_render_a.jpg"))
-        im_rb = Image.open(osp.join(resdir, imkey+"_render_b.jpg"))
+def labelrender(srcdir, desdir, imkey, gda_crd, gdb_crd, color="green"):
+    if osp.exists(osp.join(desdir, imkey+"_render_a.jpg")):
+        im_ra = Image.open(osp.join(desdir, imkey+"_render_a.jpg"))
+        im_rb = Image.open(osp.join(desdir, imkey+"_render_b.jpg"))
     else:
         im_ra = Image.open(osp.join(srcdir, imkey+"_a.jpg"))
         im_rb = Image.open(osp.join(srcdir, imkey+"_b.jpg"))
@@ -122,8 +121,8 @@ def labelrender(srcdir, resdir, imkey, gda_crd, gdb_crd, color="green"):
         draw_bbox(im_ra, i_gd, color)
     for i_gd in gdb_crd:
         draw_bbox(im_rb, i_gd, color)
-    im_ra.save(osp.join(resdir, imkey+"_render_a.jpg"))
-    im_rb.save(osp.join(resdir, imkey+"_render_b.jpg"))
+    im_ra.save(osp.join(desdir, imkey+"_render_a.jpg"))
+    im_rb.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
 def draw_bbox(im, bbox, color="red"):
     # bbox should in midx, midy, w, h list format
@@ -137,6 +136,13 @@ def draw_bbox(im, bbox, color="red"):
     draw_im.line([xmin, ymax, xmax, ymax], fill=color)
     del draw_im
 
+def draw_prob(im, bbox, font, color="red"):
+    im_draw = ImageDraw.Draw(im)
+    prob_str = "{:.3f}".format(float(bbox[0]))
+    topleftx = bbox[1] - bbox[3]/2.0
+    toplefty = bbox[2] - bbox[4]/2.0
+    im_draw.text((topleftx, toplefty), prob_str, font=font, fill=color)
+    del im_draw
 def getimsize(im_root, imkey):
     assert (type(imkey) == type("")), " | Error: imkey shold be string type..."
     if osp.exists(osp.join(im_root, imkey+"_a.xml")):

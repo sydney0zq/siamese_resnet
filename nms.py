@@ -6,14 +6,17 @@
 # --------------------------------------------------------
 
 import numpy as np
+np.seterr(divide='ignore', invalid='ignore')
 
-def nms(dets, thresh=0.5):
+def nms(dets, thresh=0.5, score_thresh=0.2):
     """Pure Python NMS baseline."""
     scores = dets[:, 0]
-    x1 = dets[:, 1]
-    y1 = dets[:, 2]
-    x2 = dets[:, 3]
-    y2 = dets[:, 4]
+    s_idx = np.where(scores >= score_thresh)[0]
+    scores = dets[s_idx, 0]
+    x1 = dets[s_idx, 1]
+    y1 = dets[s_idx, 2]
+    x2 = dets[s_idx, 3]
+    y2 = dets[s_idx, 4]
 
     areas = (x2 - x1 + 1) * (y2 - y1 + 1)
     order = scores.argsort()[::-1]
@@ -35,4 +38,13 @@ def nms(dets, thresh=0.5):
         inds = np.where(ovr <= thresh)[0]
         order = order[inds + 1]
 
-    return keep
+    res = np.zeros((len(keep), 5))
+    for ii, idx in enumerate(keep):
+        res[ii, :] = scores[idx], x1[idx], y1[idx], x2[idx], y2[idx]
+    
+    return res
+
+if __name__ == "__main__":
+    dets = np.array([[0.01, 1, 2, 3, 4], [0.5, 4, 5, 6, 7], [0.4, 4, 5, 6, 7], [0.9, 3, 1, 10, 20]])
+    print (dets.shape)
+    print (nms(dets))

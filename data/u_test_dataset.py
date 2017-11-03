@@ -57,7 +57,34 @@ def draw_bbox(im, bbox, color="red"):
     draw_im.line([xmin, ymax, xmax, ymax], fill=color)
     del draw_im
 
-def parse_gd(label, imsize, pairwise, scale_size=512):
+def parse_gd_train(label, imsize, pairwise, scale_size=512):
+    """ NO jitter data augmentation when testing. """
+    ROW, COL = label.size()[2:]
+    gd_list = []
+    n_bbox = 0
+    ow, oh = imsize
+    sx, sy = scale_size*1.0/ow, scale_size*1.0/oh
+    for row in range(ROW):
+        for col in range(COL):
+            # Generate groundtruth list
+            # We only have one instance each time at evalution stage
+            if label[0, pairwise, row, col]:
+                n_bbox += 1
+                x = (label[0, 3, row, col] + col) / COL
+                y = (label[0, 4, row, col] + row) / ROW
+                w, h = label[0, 5:, row, col]
+                gd_list.append([x, y, w, h])
+
+    for i in range(n_bbox):
+        gdx, gdy, gdw, gdh = gd_list[i][:]
+        gdx,  gdy  = ow*gdx*sx, oh*gdy*sy
+        gdw,  gdh  = ow*gdw*sx, oh*gdh*sy
+        gd_list[i][:] = gdx, gdy, gdw, gdh
+
+    return gd_list
+
+def parse_gd_test(label, imsize, pairwise, scale_size=512):
+    """ NO jitter data augmentation when testing. """
     ROW, COL = label.size()[2:]
     gd_list = []
     n_bbox = 0
@@ -85,23 +112,37 @@ def parse_gd(label, imsize, pairwise, scale_size=512):
 def u_test():
     utest_dir = "./u_test"
     dataset_dir = "./temp"
-    utest_dataset = Pair_Dataset(dataset_dir, test=False)
+    utest_dataset = Pair_Dataset(dataset_dir, test=True)
     utestloader = DataLoader(utest_dataset, batch_size = 1, shuffle=True, num_workers=1)
     imkeys = utest_dataset.imkey_list
 
     for ii, (index, im_a, im_b, label) in enumerate(utestloader):
-        imkey = imkeys[index[0]]       # Integer
-        im_a = im_a.view(-1, 512, 512)  # Should be 3x512x512
+
+        imkey = imkeys[index[0]]
+        imap = "./temp/" + imkey + "_a.jpg"
+        imbp = "./temp/" + imkey + "_b.jpg"
+        ima = Image.open(imap)
+        imb = Image.open(imbp)
+        print (imkey)
+        imsize = getimsize(dataset_dir, imkey)
+        gda_crd, gdb_crd = parse_gd_test(label, imsize, 1), parse_gd_test(label, imsize, 2)
+        labelrender(ima, imb, imkey, gda_crd, gdb_crd)
+        print (gda_crd)
+        print (gdb_crd)
+        exit()
+
+        """ LOAD IMAGES TO 512x512 size
+        #im_a = im_a.view(-1, 512, 512)  # Should be 3x512x512
         imapil = transforms.ToPILImage()(im_a)
         im_b = im_b.view(-1, 512, 512)
         imbpil = transforms.ToPILImage()(im_b)
 
         # DRAW TRANSFORMED IMAGE AND LABEL
         imsize = getimsize(dataset_dir, imkey)
-        gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
+        gda_crd, gdb_crd = parse_gd_train(label, imsize, 1), parse_gd_train(label, imsize, 2)
         labelrender(imapil, imbpil, imkey, gda_crd, gdb_crd)
-        
-
+        """    
+    
 
 
 u_test()

@@ -28,6 +28,7 @@ from model.model import DiffNetwork
 from data.dataset import Pair_Dataset
 from loss import criterion
 import os.path as osp
+from PIL import ImageFont
 
 from utils import getimsize, detrender, labelrender, parse_det, parse_gd
 
@@ -40,6 +41,9 @@ def evaluate(args):
                                   1, 
                                   shuffle=False, 
                                   num_workers=args.num_workers)
+
+    ### RENDER SRCS ###
+    font = ImageFont.truetype(args.fontfn, 12)
 
     ### LOAD MODEL ###
     if osp.exists(args.model):
@@ -66,7 +70,7 @@ def evaluate(args):
         pred = model(inp_a, inp_b)
         loss = criterion(label, pred)
         running_loss += loss.data[0]
-        imkey = int(imkey_list[index[0]])
+        imkey = imkey_list[index[0]]
         imsize = getimsize(args.test_dir, imkey)
 
         # deta_crd and gda_crd are both (midx, midy, w, h)
@@ -104,6 +108,8 @@ def parse():
                             help="Detection result filename of image b.")
     parser.add_argument('--desdir', type=str, default="./result",
                             help="Rendered image directory.")
+    parser.add_argument('--fontfn', type=str, default="./srcs/droid-sans-mono.ttf",
+                            help="Font filename when rendering.")
 
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
