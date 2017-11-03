@@ -24,45 +24,50 @@ How to get value from GPU RAM
     And you probably know the rest... So basically a.data.cpu().numpy()[0] will give you just the value
 """
 
-
 def criterion(label, pred, object_scale=1, noobject_scale=0.1, class_scale=1, coord_scale=5, num_box=1, num_class=2):
-    assert (num_box == 1), " | In loss layer, num_box is false!"
     ### INIT ###
     pred = pred.type('torch.cuda.DoubleTensor') 
     loss = Variable(torch.zeros((1)), requires_grad=True).cuda().type('torch.cuda.DoubleTensor')
-    psz = pred.size()[:]
-    lsz = label.size()[:]
+    BS, ROW, COL = pred.size()[0], pred.size()[2], pred.size()[3]
     avg_iou, avg_cat, avg_allcat, avg_obj, avg_anyobj, count = 0, 0, 0, 0, 0, 0 
     delta = pred[:, :num_box, :, :]
     loss += noobject_scale * torch.sum(torch.mul(delta, delta))
 
-    for i_pair in range(psz[0]):
+    for i_pair in range(BS):
         count_obj = 0
-        for row in range(psz[1]):
-            for col in range(psz[2]):
+        for row in range(ROW):
+            for col in range(COL):
                 ### Compute match bounding box of groundtruth
                 if label[i_pair, 0, row, col].data[0]:
+                    """
+                    Label semantic:
+                        _ __ ____
+                        0 12 3456
+                        + +  +> bbox
+                        + ++> Which obj
+                        ++> Object
+                    """
                     tx, ty, tw, th = label[i_pair, 1+num_class:, row, col].data
-                    tx = tx / psz[2]
-                    ty = ty / psz[1]
+                    #tx = tx / ROW
+                    #ty = ty / psz[1]
 
                     # Forward and backward of category(2) 
-                    delta = pred[i_pair, num_box:num_box+num_class, row, col] - label[i_pair, 1:1+num_class, row, col]
+                    delta = pred[i_pair, 1:1+num_class, row, col] - label[i_pair, 1:1+num_class, row, col]
                     loss += class_scale * torch.sum(torch.mul(delta, delta))
 
                     # Forward and backward of prob of obj
                     delta = pred[i_pair, 0, row, col] - 1.0
                     loss -= noobject_scale * (torch.mul(pred[i_pair, 0, row, col], pred[i_pair, 0, row, col]))
                     loss += object_scale * (delta ** 2)
+                    ox, oy, ow, oh = pred[i_pair, 1+num_class:num_class+1+4, row, col].data
+                   # ox /= psz[2]
+                   # oy /= psz[1]
+                    iou = box_iou([(ox+col)/COL, (oy+row)/ROW, ow, oh], [(tx+col)/COL, (ty+row)/ROW, tw, th])
+                    loss += (iou - 1.0) *(iou - 1.0)
 
-                    ox, oy, ow, oh = pred[i_pair, num_box*(num_class+1):num_box*(num_class+1)+4, row, col].data
-                    ox /= psz[2]
-                    oy /= psz[1]
-                    ow = ow ** 2
-                    oh = oh ** 2
-                    iou = box_iou([ox, oy, ow, oh], [tx, ty, tw, th])
-                    loss += (iou - 1.0) ** 2
-    loss = loss / psz[0]
+                    delta = pred[i_pair, 1+num_class:, row, col] - label[i_pair, 1+num_class:, row, col]
+                    loss += coord_scale * torch.sum(torch.mul(delta, delta))
+    loss = loss / BS
 
     return loss
 
