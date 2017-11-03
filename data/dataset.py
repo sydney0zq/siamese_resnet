@@ -69,8 +69,6 @@ class Pair_Dataset(data.Dataset):
         """ Return normalized groundtruth bboxes space. """
         labela_path = osp.join(self.im_root, self.imkey_list[index]+"_a.xml")
         labelb_path = osp.join(self.im_root, self.imkey_list[index]+"_b.xml")
-        #labela_path = "/home/zq/diff_resnet/data/test/00590_a.xml"
-        #labelb_path = "/home/zq/diff_resnet/data/test/00590_b.xml"
         label = self.load_pair_label(labela_path, labelb_path, flip, dx, dy, sx, sy)
         return index, im_a, im_b, label
 
@@ -78,7 +76,7 @@ class Pair_Dataset(data.Dataset):
         """ Modify PAIR tagged code to make it to load single image """
         im_ori, impair_ori = Image.open(ima_path), Image.open(imb_path) #PAIR
         ow, oh = im_ori.size[0], im_ori.size[1]
-        if self.train == True and self.test == False and self.valid == False:
+        if self.train == True and self.test == False:
             jitter = 0.2
             dw, dh = int(ow*jitter), int(oh*jitter)
             pleft, pright = random.randint(-dw, dw), random.randint(-dw, dw)
@@ -99,7 +97,7 @@ class Pair_Dataset(data.Dataset):
             flip = False
             im_sized = im_ori.resize((self.scale_size, self.scale_size))
             impair_sized = impair_ori.resize((self.scale_size, self.scale_size)) #PAIR
-            sx, sy = float(self.scale_size) / ow, float(self.scale_size) / oh
+            sx, sy = 1, 1           # NOTE here this BUG
         im  = self.transforms(im_sized) # Normalize and adjust the mean and var
         impair = self.transforms(impair_sized) #PAIR
 
@@ -131,10 +129,10 @@ class Pair_Dataset(data.Dataset):
                             (t_boxes[3] - t_boxes[1])*1.0/oh]) # h
             ### Correct boxes ###
             for i in range(len(boxes)):
-                left = (boxes[i][1] - boxes[i][3] / 2) / sx - dx
-                right = (boxes[i][1] + boxes[i][3] / 2) / sx - dx
-                top = (boxes[i][2] - boxes[i][4] / 2) / sy - dy
-                bottom = (boxes[i][2] + boxes[i][4] / 2) / sy - dy
+                left = (boxes[i][1] - boxes[i][3] / 2) * (1.0 / sx) - dx
+                right = (boxes[i][1] + boxes[i][3] / 2) * (1.0 / sx) - dx
+                top = (boxes[i][2] - boxes[i][4] / 2) * (1.0 / sy) - dy
+                bottom = (boxes[i][2] + boxes[i][4] / 2) * (1.0 / sy) - dy
                 if flip:
                     swap = left
                     left = 1.0 - right
@@ -149,9 +147,6 @@ class Pair_Dataset(data.Dataset):
                 boxes[i][2] = (top + bottom) / 2
                 boxes[i][3] = constrain(0, 1, right - left) 
                 boxes[i][4] = constrain(0, 1, bottom - top)
-            if label_path == "./test/00583_b.xml" or label_path == "./test/00583_a.xml":
-                print (boxes)
-                print (sx, sy, dx, dy)
 
             lst = list(range(len(boxes)))       
             shuffle(lst)
@@ -165,8 +160,6 @@ class Pair_Dataset(data.Dataset):
                 if label[0, row, col] != 0:
                     continue
                 label[:, row, col] = 1, x, y, w, h
-            if label_path == "./test/00583_b.xml" or label_path == "./test/00583_a.xml":
-                print (label)
         return label
     
     def mergelabel(self, labela, labelb):
