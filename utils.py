@@ -126,6 +126,14 @@ def labelrender(srcdir, desdir, imkey, gda_crd, gdb_crd, color="green"):
     im_ra.save(osp.join(desdir, imkey+"_render_a.jpg"))
     im_rb.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
+def labelrender_t(im_ra, im_rb, desdir, imkey, gda_crd, gdb_crd, color="green"):
+    for i_gd in gda_crd:
+        draw_bbox(im_ra, i_gd, color)
+    for i_gd in gdb_crd:
+        draw_bbox(im_rb, i_gd, color)
+    im_ra.save(osp.join(desdir, imkey+"_render_a.jpg"))
+    im_rb.save(osp.join(desdir, imkey+"_render_b.jpg"))
+
 def draw_bbox(im, bbox, color="red"):
     # bbox should in midx, midy, w, h list format
     draw_im = ImageDraw.Draw(im)
