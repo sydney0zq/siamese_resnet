@@ -31,7 +31,7 @@ def constrain(min_val, max_val, val):
 
 class Pair_Dataset(data.Dataset):
 
-    def __init__(self, im_root, scale_size=512, label_shape=(7, 7, 7), transforms=None, train=False, test=False):
+    def __init__(self, im_root, scale_size=512, label_shape=(7, 14, 14), transforms=None, train=False, test=False):
         """Get all images and spearate dataset to training and testing set."""
         self.test, self.train = test, train
         self.im_root = im_root
@@ -109,10 +109,10 @@ class Pair_Dataset(data.Dataset):
         labelb = self.get_label(labelb_path, flip, dx, dy, sx, sy)
         return self.mergelabel(labela, labelb)
 
-    # GET LABEL TO STANDARD FORMAT, 5x7x7
+    # GET LABEL TO STANDARD FORMAT, 5x14x14
     def get_label(self, label_path, flip, dx, dy, sx, sy):
         ROW, COL = self.label_shape[1], self.label_shape[2]
-        label = np.zeros((5, 7, 7)) # FIXED
+        label = np.zeros((5, self.label_shape[1], self.label_shape[2]))
         if osp.exists(label_path):
             tree = ET.parse(label_path)
             im_size = tree.findall("size")[0]

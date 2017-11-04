@@ -24,7 +24,8 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 import xml.etree.ElementTree as ET
 
-from model.model import DiffNetwork
+#from model.model import DiffNetwork
+from model.model_lh import DiffNetwork
 from data.dataset import Pair_Dataset
 from loss import criterion
 import os.path as osp
