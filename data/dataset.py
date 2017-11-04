@@ -166,11 +166,15 @@ class Pair_Dataset(data.Dataset):
         label = np.zeros(self.label_shape)
         for row in range(self.label_shape[1]):
             for col in range(self.label_shape[2]):
+                """
+                    You should be aware of these code:
+                        We can set _ 11 ____, the object are in the same position on image a and image b
+                """
                 if labela[0, row, col] == 1 and label[1, row, col] == 0:
                     label[0, row, col] = 1
                     label[1, row, col] = 1
                     label[3:7, row, col] = labela[1:, row, col]
-                if labelb[0, row, col] == 1 and label[2, row, col] == 0 and label[1, row ,col] == 0:
+                if labelb[0, row, col] == 1 and label[2, row, col] == 0:
                     label[0, row, col] = 1
                     label[2, row, col] = 1
                     label[3:7, row, col] = labelb[1:, row, col]

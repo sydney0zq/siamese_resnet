@@ -23,7 +23,6 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 
 from model.model import DiffNetwork
-#from model.model_lh import DiffNetwork
 from data.dataset import Pair_Dataset
 from loss import criterion
 
@@ -91,7 +90,7 @@ def train(args):
             if phase == 'valid' and best_loss >= epoch_loss:
                 best_loss = epoch_loss
                 best_model_wts = model.state_dict()
-                torch.save(best_model_wts, "./model_lh_best.pth.tar")
+                torch.save(best_model_wts, "./model_best.pth.tar")
                 print (" | Epoch {} state saved, now loss reaches {}...".format(epoch, best_loss))
         print (" | Time consuming: {:.4f}s".format(time.time()-tic))
         print (" | ")

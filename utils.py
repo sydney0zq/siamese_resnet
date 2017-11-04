@@ -92,7 +92,7 @@ def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
 
     det_str = ""
     for i in range(det_len):
-        det_str += imkey + " "
+        det_str += imkey + "_" + chr(ord('a')+pairwise-1) + " "
         for j in range(5):
             det_str += f2s(det_list[i][j]) + " "
         det_str += "\n"

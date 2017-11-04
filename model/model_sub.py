@@ -30,11 +30,13 @@ class DiffNetwork(nn.Module):
                             nn.ReLU(inplace=True),
                             nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1),
                             nn.ReLU(inplace=True),
-                            nn.Conv2d(512, 7, kernel_size=3, stride=1, padding=1))
+                            nn.Conv2d(512, 7, kernel_size=3, stride=1, padding=1)) # 7x14x14
 
     def forward(self, inputa, inputb):
         outputa = self.resnet18(inputa)
         outputb = self.resnet18(inputb)
-        concated_fea = torch.cat([outputa, outputb], dim=1) # [batch_size, 1024, 16, 16]
+        sub_fea1 = outputa - outputb
+        sub_fea2 = outputb - outputa
+        concated_fea = torch.cat([sub_fea1, sub_fea2], dim=1) # [batch_size, 1024, 16, 16]
         output = self.regression(concated_fea)
         return output
