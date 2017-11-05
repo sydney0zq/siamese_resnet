@@ -22,11 +22,9 @@ class DiffNetwork(nn.Module):
         self.resnet18 = nn.Sequential(*list(models.resnet18(pretrained=True).children())[:-2])
         self.regression = nn.Sequential(
                             # To 14x14
-                            nn.Conv2d(1024, 512, kernel_size=4, stride=1, padding=1),
-                            nn.ReLU(inplace=True),
                             nn.Conv2d(512, 512, kernel_size=4, stride=1, padding=1),
                             nn.ReLU(inplace=True),
-                            nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1),
+                            nn.Conv2d(512, 512, kernel_size=4, stride=1, padding=1),
                             nn.ReLU(inplace=True),
                             nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1),
                             nn.ReLU(inplace=True),
@@ -35,8 +33,6 @@ class DiffNetwork(nn.Module):
     def forward(self, inputa, inputb):
         outputa = self.resnet18(inputa)
         outputb = self.resnet18(inputb)
-        sub_fea1 = outputa - outputb
-        sub_fea2 = outputb - outputa
-        concated_fea = torch.cat([sub_fea1, sub_fea2], dim=1) # [batch_size, 1024, 16, 16]
-        output = self.regression(concated_fea)
+        sub_fea = outputa - outputb
+        output = self.regression(sub_fea)
         return output
