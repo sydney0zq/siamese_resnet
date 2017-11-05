@@ -1,0 +1,26 @@
+<annotation verified="yes">
+	<folder>200陈洋</folder>
+	<filename>00555_a.jpg</filename>
+	<path>C:\Users\xiaohei\Desktop\200陈洋\00555_a.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>960</width>
+		<height>540</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>dif</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>508</xmin>
+			<ymin>59</ymin>
+			<xmax>602</xmax>
+			<ymax>168</ymax>
+		</bndbox>
+	</object>
+</annotation>
