@@ -31,15 +31,10 @@ def parse_rec(filename):
             obj_struct['name'] = tree.findall('filename')[0].text[-5:-4]
             obj_struct['difficult'] = 0
             bbox = obj.find('bndbox')
-            box = [floor(bbox.find('xmin').text),
+            obj_struct['bbox'] = [floor(bbox.find('xmin').text),
                    floor(bbox.find('ymin').text),
                    floor(bbox.find('xmax').text),
                    floor(bbox.find('ymax').text)]
-            obj_struct['bbox'] = [
-                        floor(box[0] + box[2]/2.0),
-                        floor(box[1] + box[3]/2.0),
-                        floor(box[2] - box[0]),
-                        floor(box[3] - box[1])]
             objects.append(obj_struct)
     else:
         objects = []
@@ -112,7 +107,7 @@ def voc_eval(detpath, annopath, imagesetfile, classname, ovthresh=0.5, use_07_me
     BB = np.array([[float(z) for z in x[2:]] for x in splitlines])
 
     if confidence.shape[0] == 0:    # None this class
-      return 0, 0, 0
+        return 0, 0, 0
 
     # sort by confidence
     sorted_ind = np.argsort(-confidence)    # gen a sort index
@@ -131,7 +126,6 @@ def voc_eval(detpath, annopath, imagesetfile, classname, ovthresh=0.5, use_07_me
         BBGT = R['bbox'].astype(float)
 
         if BBGT.size > 0:
-            # compute overlaps
             ixmin = np.maximum(BBGT[:, 0], bb[0])
             iymin = np.maximum(BBGT[:, 1], bb[1])
             ixmax = np.minimum(BBGT[:, 2], bb[2])

@@ -22,7 +22,8 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 
-from model.model import DiffNetwork
+#from model.model import DiffNetwork
+from model.model_cat import DiffNetwork
 from data.dataset import Pair_Dataset
 from loss import criterion
 
@@ -90,7 +91,7 @@ def train(args):
             if phase == 'valid' and best_loss >= epoch_loss:
                 best_loss = epoch_loss
                 best_model_wts = model.state_dict()
-                torch.save(best_model_wts, "./model_best.pth.tar")
+                torch.save(best_model_wts, args.bestmodel_fn)
                 print (" | Epoch {} state saved, now loss reaches {}...".format(epoch, best_loss))
         print (" | Time consuming: {:.4f}s".format(time.time()-tic))
         print (" | ")
@@ -108,8 +109,8 @@ def parse():
                             help="Number of data loading threads.")
     parser.add_argument('--no_cuda', action='store_true', default=False,
                             help="Disable CUDA training.")
-    parser.add_argument('--model', type=str, default="", 
-                            help="Give a model to test.")
+    parser.add_argument('--bestmodel_fn', type=str, default="./model_best.pth.tar", 
+                            help="Give a model name to save.")
     parser.add_argument('--lr', type=float, default=0.001, 
                             help="Learning rate for optimizing method.")
     parser.add_argument('--lr_stepsize', type=int, default=60, 

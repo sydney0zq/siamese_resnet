@@ -11,6 +11,7 @@ Utils.
 """
 import PIL
 from PIL import Image
+from PIL import ImageFont
 from PIL import ImageDraw
 import math
 import numpy as np
@@ -20,6 +21,33 @@ from nms import nms
 
 floor = lambda x: math.floor(float(x))
 f2s = lambda x: str(float(x))
+
+
+### HIGH LEVEL RENDER TOOLS ###
+def render_orim(args, imkey, label, pred):
+    font = ImageFont.truetype(args.fontfn, 12)
+    imsize = getimsize(args.test_dir, imkey)
+    # deta_crd and gda_crd are both (midx, midy, w, h) on scaled images
+    gda_crd, gdb_crd = parse_gd(label, imsize, 1), parse_gd(label, imsize, 2)
+    deta_crd = parse_det(pred, imkey, imsize, 1)
+    detb_crd = parse_det(pred, imkey, imsize, 2)
+    
+    # Scale bbox
+    gda_crd, gdb_crd = scale_trans(gda_crd, imsize), scale_trans(gdb_crd, imsize)
+    deta_crd, detb_crd = scale_trans(deta_crd, imsize), scale_trans(detb_crd, imsize)
+    deta_str, detb_str = bbox2str(deta_crd, imkey, 1), bbox2str(detb_crd, imkey, 2)
+
+    # Render on images
+    im_a_path = osp.join(args.test_dir, imkey + "_a.jpg")
+    im_b_path = osp.join(args.test_dir, imkey + "_b.jpg")
+    im_a, im_b = Image.open(im_a_path), Image.open(im_b_path)
+    labelrender_t(im_a, im_b, args.desdir, imkey, gda_crd, gdb_crd)
+    detrender_t(im_a, im_b, args.desdir, imkey, deta_crd, detb_crd, font)
+    return deta_str, detb_str
+
+
+
+
 
 # label is 7x7x7
 # pred  is 7x7x7
@@ -47,7 +75,7 @@ def parse_gd(label, imsize, pairwise, scale_size=512):
         ### USE FOLLOW CODE TO RECOVER TO ORIGIN SIZE, WITH BUGGY###
         gdx,  gdy  = scale_size*gdx*sx, scale_size*gdy*sy
         gdw,  gdh  = scale_size*gdw*sx, scale_size*gdh*sy
-        gd_list[i][:] = gdx, gdy, gdw, gdh
+        gd_list[i][:] = 1, gdx, gdy, gdw, gdh
 
     return gd_list
 
@@ -88,16 +116,7 @@ def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
     
     det_list = nms(det)
     #det_list = det
-    det_len = len(det_list)
-
-    det_str = ""
-    for i in range(det_len):
-        det_str += imkey + "_" + chr(ord('a')+pairwise-1) + " "
-        for j in range(5):
-            det_str += f2s(det_list[i][j]) + " "
-        det_str += "\n"
-
-    return det_str, det_list
+    return det_list
 
 
 ### RENDER AREA ###
@@ -135,17 +154,17 @@ def labelrender(srcdir, desdir, imkey, gda_crd, gdb_crd, color="green"):
     """
 
     for i_gd in gda_crd:
-        draw_bbox(im_ra, i_gd, color)
+        draw_bbox(im_ra, i_gd[1:], color)
     for i_gd in gdb_crd:
-        draw_bbox(im_rb, i_gd, color)
+        draw_bbox(im_rb, i_gd[1:], color)
     im_ra.save(osp.join(desdir, imkey+"_render_a.jpg"))
     im_rb.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
 def labelrender_t(im_ra, im_rb, desdir, imkey, gda_crd, gdb_crd, color="green"):
     for i_gd in gda_crd:
-        draw_bbox(im_ra, i_gd, color)
+        draw_bbox(im_ra, i_gd[1:], color)
     for i_gd in gdb_crd:
-        draw_bbox(im_rb, i_gd, color)
+        draw_bbox(im_rb, i_gd[1:], color)
     im_ra.save(osp.join(desdir, imkey+"_render_a.jpg"))
     im_rb.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
@@ -168,6 +187,7 @@ def draw_prob(im, bbox, font, color="red"):
     toplefty = bbox[2] - bbox[4]/2.0
     im_draw.text((topleftx, toplefty), prob_str, font=font, fill=color)
     del im_draw
+
 def getimsize(im_root, imkey):
     assert (type(imkey) == type("")), " | Error: imkey shold be string type..."
     if osp.exists(osp.join(im_root, imkey+"_a.xml")):
@@ -179,6 +199,40 @@ def getimsize(im_root, imkey):
     ow = int(im_size.find("width").text)
     oh = int(im_size.find("height").text)
     return (ow, oh)
+
+def scale_trans(bbox, imsize, scale_size=512):
+    # gd and det should be Nx5 format
+    ow, oh = imsize
+    sx, sy = ow*1.0/scale_size, oh*1.0/scale_size
+    bbox_np = np.array(bbox)
+    if len(bbox) != 0:
+        bbox_np[:, 1] = bbox_np[:, 1] * sx
+        bbox_np[:, 3] = bbox_np[:, 3] * sx
+        bbox_np[:, 2] = bbox_np[:, 2] * sy
+        bbox_np[:, 4] = bbox_np[:, 4] * sy
+    return bbox_np.tolist()
+
+def bbox2str(det_list, imkey, pairwise):
+    # det_list in the format of midx, midy, w, h
+    det_str = ""
+    det_len = len(det_list)
+    det = mid2mm(det_list)
+    for i in range(det_len):
+        det_str += imkey + "_" + chr(ord('a')+pairwise-1) + " "
+        for j in range(5):
+            det_str += f2s(det[i][j]) + " "
+        det_str += "\n"
+    return det_str
+
+def mid2mm(midlist):
+    mid_np = np.array(midlist)
+    if len(midlist) != 0:
+        midx, midy, w, h = mid_np[:, 1], mid_np[:, 2], mid_np[:, 3], mid_np[:, 4]
+        minx, miny, maxx, maxy = midx - w/2.0, midy - h/2.0, midx + w/2.0, midy + h/2.0
+        mid_np[:, 1], mid_np[:, 2], mid_np[:, 3], mid_np[:, 4] = minx, miny, maxx, maxy
+    return mid_np.tolist()
+    
+
 
 ### CALCULATE IOU ###
 """
@@ -219,3 +273,9 @@ def ave_iou(detlist, gdlist):
         ave_iou[ii] = ave_iou[ii] / (jj+1.0)
     return ave_iou
 
+
+if __name__ == "__main__":
+    a = [[0.3, 10, 20, 50, 90], [0.6, 20, 50, 40, 100]]
+    b = [[0.4, 10, 20, 50, 90], [0.5, 20, 50, 40, 100]]
+    print (a)
+    print (mid2mm(a))
