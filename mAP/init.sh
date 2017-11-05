@@ -36,6 +36,7 @@ done
 sort $TA_FN | uniq >> $IMA_FN
 sort $TB_FN | uniq >> $IMB_FN
 
+python3 compute_mAP.py
 
 
 

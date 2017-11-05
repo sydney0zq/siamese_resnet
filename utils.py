@@ -233,7 +233,6 @@ def mid2mm(midlist):
     return mid_np.tolist()
     
 
-
 ### CALCULATE IOU ###
 """
 A criterion to calculate the score we get.

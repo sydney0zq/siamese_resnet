@@ -17,6 +17,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import os.path as osp
+import importlib
 
 from torch.autograd import Variable
 from torchvision import transforms
@@ -24,7 +25,6 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler 
 import xml.etree.ElementTree as ET
 
-from model.model_cat import DiffNetwork
 from data.dataset import Pair_Dataset
 from loss import criterion
 import os.path as osp
@@ -44,9 +44,9 @@ def evaluate(args):
                                   num_workers=args.num_workers)
     fa, fb = open(args.deta_fn, "w"), open(args.detb_fn, "w")
     ### LOAD MODEL ###
-    if osp.exists(args.model):
-        model_weights = torch.load(args.model)
-        model = DiffNetwork()
+    if osp.exists(args.model_fn):
+        model_weights = torch.load(args.model_fn)
+        model = importlib.import_module("model." + args.model).DiffNetwork()
         model.load_state_dict(model_weights)
         if args.cuda:
             model = model.cuda()
@@ -87,8 +87,10 @@ def parse():
                             help="Number of data loading threads.")
     parser.add_argument('--no_cuda', action='store_true', default=False,
                             help="Disable CUDA training.")
-    parser.add_argument('--model', type=str, default="./model_best.pth.tar", 
-                            help="Give a model to test.")
+    parser.add_argument('--model', type=str, default="base", 
+                            help="A model name to generate network.")
+    parser.add_argument('--model_fn', type=str, default="./default.pth.tar",
+                            help="A model tar file to test.")
     parser.add_argument('--deta_fn', type=str, default="./result/det_a.txt", 
                             help="Detection result filename of image a.")
     parser.add_argument('--detb_fn', type=str, default="./result/det_b.txt", 
