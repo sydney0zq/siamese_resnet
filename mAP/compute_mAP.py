@@ -163,37 +163,34 @@ def voc_eval(detpath, annopath, imagesetfile, classname, ovthresh=0.5, use_07_me
 
     return rec, prec, ap
 
-def assistor(f, detpath, annopath, imagesetfile, classname):
+def assistor(detpath, annopath, imagesetfile, classname):
     rec, prec, ap = voc_eval(detpath, annopath, imagesetfile, classname, ovthresh=0.5, use_07_metric=True)
-    print ('{}'.format(classname))
-    print ('|--ap: {}'.format(ap))
-    print ('|--max prec: {}'.format(max(prec)))
-    print ('|--max rec: {}\n'.format(max(rec)))
-    f.write('{}\n'.format(classname))
-    f.write('|--ap: {}\n'.format(ap))
-    f.write('|--max prec: {}\n'.format(max(prec)))
-    f.write('|--max rec: {}\n\n'.format(max(rec)))
+    print (' | {}--------------'.format(classname))
+    print (' | --ap: {}'.format(ap))
+    print (' | --max prec: {}'.format(max(prec)))
+    print (' | --max rec: {}'.format(max(rec)))
+    print (" | ")
     return rec, prec, ap
 
-
 if __name__ == '__main__':
+    """
     det_a_path = "./cache/det_a.txt"
     det_b_path = "./cache/det_b.txt"
     annopath = "/home/zq/diff_resnet/data/test/{}.xml"
     im_a_txt = "./cache/testa.txt"
     im_b_txt = "./cache/testb.txt"
-    result_log = "./result.log"
-    
-    f = open(result_log, "w")
+    """
+    det_a_path, det_b_path = sys.argv[1], sys.argv[2]
+    annopath = sys.argv[3]
+    im_a_txt, im_b_txt = sys.argv[4], sys.argv[5]
+
     mAP = 0.0
     tic = time.time()
-    rec_a, prec_a, ap_a = assistor(f, det_a_path, annopath, im_a_txt, "a") 
-    rec_b, prec_b, ap_b = assistor(f, det_b_path, annopath, im_b_txt, "b") 
+    rec_a, prec_a, ap_a = assistor(det_a_path, annopath, im_a_txt, "a") 
+    rec_b, prec_b, ap_b = assistor(det_b_path, annopath, im_b_txt, "b") 
     mAP += ap_a/2.0
     mAP += ap_b/2.0
-    print ('mAP: {}\n'.format(mAP))
-    f.write('mAP: {}\n\n'.format(mAP))
-    f.close()
+    print (' | mAP: {}'.format(mAP))
     print (" | This evalution consumes {0:.1f}s".format(time.time()-tic))
     print (" | Done!")
 
