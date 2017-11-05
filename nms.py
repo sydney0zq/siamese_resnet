@@ -8,7 +8,7 @@
 import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
 
-def nms(dets, thresh=0.5, score_thresh=0.1):
+def nms(dets, thresh=0.3, score_thresh=0.5):
     """Pure Python NMS baseline."""
     scores = dets[:, 0]
     s_idx = np.where(scores >= score_thresh)[0]

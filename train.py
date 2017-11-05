@@ -32,9 +32,9 @@ def train(args):
                                   shuffle=True, 
                                   num_workers=args.num_workers)
     dataloader["valid"] = DataLoader(Pair_Dataset(args.trainval_dir, train=False),
-                                args.batch_size, 
-                                shuffle=False, 
-                                num_workers=args.num_workers)
+                                  args.batch_size, 
+                                  shuffle=False, 
+                                  num_workers=args.num_workers)
 
     ### MODEL and METHOD ###
     model = importlib.import_module("model." + args.model).DiffNetwork()
@@ -99,7 +99,7 @@ def parse():
     date = time.strftime("%Y-%m-%d", time.localtime())
     ### DATA ###
     parser.add_argument('--trainval_dir', type=str, default="./data/train")
-    parser.add_argument('--nepochs', type=int, default=200,
+    parser.add_argument('--nepochs', type=int, default=500,
                             help="Number of sweeps over the dataset to train.")
     parser.add_argument('--batch_size', type=int, default=4,
                             help="Number of images in each mini-batch.")
@@ -111,7 +111,7 @@ def parse():
                             help="Model module name in model dir and I will save best model the same name.")
     parser.add_argument('--lr', type=float, default=0.001, 
                             help="Learning rate for optimizing method.")
-    parser.add_argument('--lr_stepsize', type=int, default=60, 
+    parser.add_argument('--lr_stepsize', type=int, default=100, 
                             help="Control exponent learning rate decay..")
     parser.add_argument('--log_freq', type=int, default=10)
     # As a rule of thumb, the more training examples you have, the weaker this term should be. 
