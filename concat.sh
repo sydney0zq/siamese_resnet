@@ -14,4 +14,5 @@ while IFS= read -r line
 do
     echo " | Processing $line"
     convert $RES_DIR/"$line"_render_a.jpg $RES_DIR/"$line"_render_b.jpg +append $RES_DIR/"$line"_concat.jpg
+    /bin/rm  $RES_DIR/"$line"_render_a.jpg $RES_DIR/"$line"_render_b.jpg
 done < "$test_fn"
