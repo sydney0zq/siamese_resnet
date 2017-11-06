@@ -38,11 +38,12 @@ def render_orim(args, imkey, label, pred):
     deta_str, detb_str = bbox2str(deta_crd, imkey, 1), bbox2str(detb_crd, imkey, 2)
 
     # Render on images
-    im_a_path = osp.join(args.test_dir, imkey + "_a.jpg")
-    im_b_path = osp.join(args.test_dir, imkey + "_b.jpg")
-    im_a, im_b = Image.open(im_a_path), Image.open(im_b_path)
-    labelrender_t(im_a, im_b, args.desdir, imkey, gda_crd, gdb_crd)
-    detrender_t(im_a, im_b, args.desdir, imkey, deta_crd, detb_crd, font)
+    if args.render == 1:
+        im_a_path = osp.join(args.test_dir, imkey + "_a.jpg")
+        im_b_path = osp.join(args.test_dir, imkey + "_b.jpg")
+        im_a, im_b = Image.open(im_a_path), Image.open(im_b_path)
+        labelrender_t(im_a, im_b, args.desdir, imkey, gda_crd, gdb_crd)
+        detrender_t(im_a, im_b, args.desdir, imkey, deta_crd, detb_crd, font)
     return deta_str, detb_str
 
 

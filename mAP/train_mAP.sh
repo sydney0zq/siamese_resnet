@@ -28,8 +28,11 @@ do
     echo "$imkey"_a >> $TA_FN
     echo "$imkey"_b >> $TB_FN
 done
-sort $TA_FN | uniq >> $IMA_FN
-sort $TB_FN | uniq >> $IMB_FN
+sort $TA_FN | uniq > $IMA_FN
+sort $TB_FN | uniq > $IMB_FN
+
+/bin/rm $TA_FN $TB_FN
+
 
 python3 compute_mAP.py  $DETA_FN $DETB_FN \
                         "/home/zq/diff_resnet/data/train/{}.xml" \

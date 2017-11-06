@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from torch.autograd import Variable
 from torchvision import transforms
 from torch.utils.data import DataLoader
-from torch.optim import lr_scheduler 
+#from torch.optim import lr_scheduler 
 
 from data.dataset import Pair_Dataset
 from loss import criterion
@@ -45,7 +45,7 @@ def train(args):
                                 lr = args.lr,
                                 momentum=0.9,
                                 weight_decay = args.weight_decay)
-    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_stepsize, gamma=0.1)
+    #exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_stepsize, gamma=0.1)
 
     ### START TO MACHINE LEARNING ###
     tic = time.time()
@@ -58,7 +58,8 @@ def train(args):
         # Each epoch has a training and validation phase
         for phase in ['train', 'valid']:
             if phase == 'train':
-                exp_lr_scheduler.step()
+                #exp_lr_scheduler.step()
+                lr_scheduler(optimizer, epoch, args)
                 model.train(True)   # Set model in training mode
             else:
                 model.train(False)
@@ -93,13 +94,25 @@ def train(args):
         print (" | Time consuming: {:.4f}s".format(time.time()-tic))
         print (" | ")
    
+def lr_scheduler(optimizer, epoch, args):
+    if 0 <= epoch < 20:
+        lr = (epoch / 5.0)*0.001 + args.lr
+    elif epoch < 75:
+        lr = 1e-3
+    elif epoch < 105:
+        lr = 1e-4
+    elif 105 <= epoch:
+        lr = 1e-5
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
 
 def parse():
     parser = argparse.ArgumentParser()
     date = time.strftime("%Y-%m-%d", time.localtime())
     ### DATA ###
     parser.add_argument('--trainval_dir', type=str, default="./data/train")
-    parser.add_argument('--nepochs', type=int, default=500,
+    parser.add_argument('--nepochs', type=int, default=150,
                             help="Number of sweeps over the dataset to train.")
     parser.add_argument('--batch_size', type=int, default=4,
                             help="Number of images in each mini-batch.")
@@ -109,10 +122,10 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="base", 
                             help="Model module name in model dir and I will save best model the same name.")
-    parser.add_argument('--lr', type=float, default=0.001, 
-                            help="Learning rate for optimizing method.")
-    parser.add_argument('--lr_stepsize', type=int, default=100, 
-                            help="Control exponent learning rate decay..")
+    parser.add_argument('--lr', type=float, default=0.0001, 
+                            help="Beginning value of learning rate.")
+    #parser.add_argument('--lr_stepsize', type=int, default=100, 
+    #                        help="Control exponent learning rate decay..")
     parser.add_argument('--log_freq', type=int, default=10)
     # As a rule of thumb, the more training examples you have, the weaker this term should be. 
     # The more parameters you have the higher this term should be.

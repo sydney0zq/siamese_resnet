@@ -4,6 +4,8 @@ result.txt
 :Email: zq@mclab
 :Date: 2017-11-06 10:12
 
+=======2017-11-06 10:28(Monday)=======
+CONCAT MODLE
 ### All concat model on test set
  | Copy detection results to cache dir...
  | Generate testing set txt file to cache dir...
@@ -19,6 +21,22 @@ result.txt
  | 
  | mAP: 0.5068722943722944
  | This evalution consumes 0.0s
+ | Done!
+### Concat model on train set
+ | Copy detection results to cache dir...
+ | Generate testing set txt file to cache dir...
+ | a--------------
+ | --ap: 0.4244085339517394
+ | --max prec: 1.0
+ | --max rec: 0.4572072072072072
+ | 
+ | b--------------
+ | --ap: 0.4042318687780053
+ | --max prec: 1.0
+ | --max rec: 0.43333333333333335
+ | 
+ | mAP: 0.41432020136487235
+ | This evalution consumes 0.1s
  | Done!
 
 =======2017-11-06 10:19(Monday)=======
@@ -39,7 +57,7 @@ SUB MODLE
  | mAP: 0.3837706411235823
  | This evalution consumes 0.0s
  | Done!
-
+### Sub model on train set
  | Copy detection results to cache dir...
  | Generate testing set txt file to cache dir...
  | a--------------
