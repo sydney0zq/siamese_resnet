@@ -114,7 +114,9 @@ def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
         oriw, orih = int(detw*scale_size*sx), int(deth*scale_size*sy)
         det[i, 1:] = orix, oriy, oriw, orih
     
-    det_list = nms(det)
+    # NOTE: We need to nms
+    det_mm = np.array(mid2mm(det))
+    det_list = mm2mid( nms(det_mm) )
     #det_list = det
     return det_list
 
@@ -232,6 +234,13 @@ def mid2mm(midlist):
         mid_np[:, 1], mid_np[:, 2], mid_np[:, 3], mid_np[:, 4] = minx, miny, maxx, maxy
     return mid_np.tolist()
     
+def mm2mid(mmlist):
+    mm_np = np.array(mmlist)
+    if len(mmlist) != 0:
+        minx, miny, maxx, maxy = mm_np[:, 1], mm_np[:, 2], mm_np[:, 3], mm_np[:, 4]
+        midx, midy, w,    h    = (minx+maxx)/2.0, (miny+maxy)/2.0, (maxx-minx), (maxy-miny)
+        mm_np[:, 1], mm_np[:, 2], mm_np[:, 3], mm_np[:, 4] = midx, midy, w, h
+    return mm_np.tolist()
 
 ### CALCULATE IOU ###
 """
@@ -277,4 +286,4 @@ if __name__ == "__main__":
     a = [[0.3, 10, 20, 50, 90], [0.6, 20, 50, 40, 100]]
     b = [[0.4, 10, 20, 50, 90], [0.5, 20, 50, 40, 100]]
     print (a)
-    print (mid2mm(a))
+    print (mm2mid(a))

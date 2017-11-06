@@ -7,8 +7,9 @@
 
 import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
+from unit import *
 
-def nms(dets, thresh=0.3, score_thresh=0.5):
+def nms(dets, thresh=0.2, score_thresh=0.5):
     """Pure Python NMS baseline."""
     scores = dets[:, 0]
     s_idx = np.where(scores >= score_thresh)[0]
@@ -48,10 +49,11 @@ def nms(dets, thresh=0.3, score_thresh=0.5):
     return res
 
 if __name__ == "__main__":
-    dets = np.array([[0.9, 1, 2, 3, 4], [0.7, 4, 6, 6, 7], [0.8, 4, 5, 6, 7], [0.9, 3, 1, 10, 20]])
-    dets = np.array( [[   1.00442088 , 313    ,      301    ,       60     ,      63        ],
-             [   0.61739206 , 341       ,   302       ,    45         ,  56        ],
-             [1.029, 169, 346, 46, 66]])
+    dets = np.array([[   0.99221122 , 209       ,   358,           41,           62,        ], 
+                    [   0.6985414 ,  371,          295,           53,           60        ],
+                    [   0.5440979 ,  206,          365,           41,           55        ]])
+    dets = np.array(mid2mm(dets))
     print (dets)
-    print (dets.shape)
+    print (cal_iou(dets[0, 1:], dets[2, 1:]))
+    #print (dets.shape)
     print (nms(dets))
