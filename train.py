@@ -112,7 +112,7 @@ def parse():
     date = time.strftime("%Y-%m-%d", time.localtime())
     ### DATA ###
     parser.add_argument('--trainval_dir', type=str, default="./data/train")
-    parser.add_argument('--nepochs', type=int, default=150,
+    parser.add_argument('--nepochs', type=int, default=200,
                             help="Number of sweeps over the dataset to train.")
     parser.add_argument('--batch_size', type=int, default=4,
                             help="Number of images in each mini-batch.")
