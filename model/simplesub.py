@@ -19,18 +19,20 @@ class DiffNetwork(nn.Module):
     def __init__(self):
         super(DiffNetwork, self).__init__()
         # 16x16 and 512 channels
-        self.resnet152 = nn.Sequential(*list(models.resnet152(pretrained=True).children())[:-2])
+        self.resnet18 = nn.Sequential(*list(models.resnet18(pretrained=True).children())[:-3])
         self.regression = nn.Sequential(
                             # To 14x14
-                            nn.Conv2d(2048, 2048, kernel_size=4, stride=1, padding=1),
+                            nn.Conv2d(256, 256, kernel_size=4, stride=2, padding=0),
                             nn.ReLU(inplace=True),
-                            nn.Conv2d(2048, 2048, kernel_size=4, stride=1, padding=1),
+                            nn.Conv2d(256, 256, kernel_size=4, stride=1, padding=1),
                             nn.ReLU(inplace=True),
-                            nn.Conv2d(2048, 7, kernel_size=3, stride=1, padding=1)) # 7x14x14
+                            nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1),
+                            nn.ReLU(inplace=True),
+                            nn.Conv2d(256, 7, kernel_size=3, stride=1, padding=1)) # 7x14x14
 
     def forward(self, inputa, inputb):
-        outputa = self.resnet152(inputa)
-        outputb = self.resnet152(inputb)
+        outputa = self.resnet18(inputa)
+        outputb = self.resnet18(inputb)
         sub_fea = outputa - outputb
         output = self.regression(sub_fea)
         return output

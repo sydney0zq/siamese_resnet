@@ -46,7 +46,7 @@ def train(args):
                                 momentum=0.9,
                                 weight_decay = args.weight_decay)
     if args.lr_policy == "exp":
-        exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_stepsize, gamma=0.5)
+        exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_stepsize, gamma=0.1)
 
     ### START TO MACHINE LEARNING ###
     tic = time.time()

@@ -1,0 +1,37 @@
+% vim:ft=tex:
+%
+\documentclass[12pt]{article}
+
+\title{
+	method
+}
+\author{
+	zq --- \texttt{zq@mclab}
+}
+
+\begin{document}
+\maketitle
+
+\section{2 DiffNetwork}
+
+This section mainly describes our network framework for detecting the difference between the two similar images, including our training strategy. Then experiment results and our analysis on them will be presented afterwards.\\
+
+\section{2.1 Data Preprocessing and Label Format}
+
+
+\section{2.2 Model Architecture}
+
+Our network structure is very simple, as we use a very small dataset which contains approximately 500 pair images in the training and validating phase,  50 pair images in the testing phase, therefore a pretrained model design is necessary. So in our project we choose the famous network architecture, ResNet[r].\\
+
+And also, the depth of ResNet is variant, such as 18, 34, or even deeper, 152. Considering the best performance of ResNet on ImageNet challenge[r] is classification and object localization. One intuitive explaination on this network is that higher level layers contains more higher semantic information, and what a classifier needs is certainly global infomation and the most significat part of given images while our task is converse. And I have do some experiments about it to verify this explaination.\\
+
+The task our network is to find the difference of one pair images, in the almost same view angle. Our network needs to extract the lower levels information instead of higher ones. Under the core idea of 
+
+
+
+
+
+
+
+
+\end{document}
