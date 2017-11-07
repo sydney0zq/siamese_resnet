@@ -27,10 +27,46 @@ Also, the depth of ResNet is variant, such as 18, 34, or even deeper, 152. Consi
 
 The task our network is to find the difference of one pair images, and the two images were shootted in an almost same view angle. Our network needs to extract the lower levels information to regressor instead of higher ones. Under this core idea, we finally use a clipped ResNet18. Our model takes two images as inputs, notice they share the weights, and then we use a four layers convention convolutional neural network each with ReLU unlinear activation layer to get confidence, probablity of which images as well as our bounding boxs.\\
 
-The prediection format is nearly the same with YOLO. Our network finally throws out a 7x14x14 Tensor
+Like YOLO, we divide our input images into $14x14$ cells. In YOLO paper, they divide one images into $7x7$ cells. We divide our images into more cells for there are a lot of bordering conditions, while in Pascal dataset, this kind situation is not so many as ours. And we output each cell $7$ value, the first position means whether this cell exists object, we refer it as $P(Object)$; the neighboring two positions means which image has the newly added object, we can refer them as $P(A|Object), P(B|Object)$, respectively; and the last four positions stands for the bounding box regressed by the current cell, we refer them as $[midx, midy, w, h]$. $midx, midy$ are the center of our bounding box and $w, h$ are the width and height. Unlike YOLO, we notice each training instance has very few objects, so we don't actually need too many of boudning box on each grid cell.
+
+As a result, our network finally throws out a $7x14x14$ Tensor. We can just use formula $P(Object)\times P(A|Object)$ and $P(Object) \times P(B|Object)$ to get the probability of the bounding box in image A and image B.
 
 
-$7\multi14\multi14$ for each pair of images,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

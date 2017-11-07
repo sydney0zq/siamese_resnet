@@ -42,7 +42,7 @@ def train(args):
         model.cuda()
 
     optimizer = torch.optim.SGD(model.parameters(),
-                                lr = 0.001,
+                                lr = 0.002,
                                 momentum=0.9,
                                 weight_decay = args.weight_decay)
     if args.lr_policy == "exp":

@@ -63,12 +63,13 @@ class Pair_Dataset(data.Dataset):
         imb_path = osp.join(self.im_root, self.imkey_list[index]+"_b.jpg")
         im_a, im_b, flip, dx, dy, sx, sy = self.load_pair_im(ima_path, imb_path)
 
-        #if random.uniform(0, 1) > 0.5:
-        #    im_a, im_b = im_b, im_a
 
         """ Return normalized groundtruth bboxes space. """
         labela_path = osp.join(self.im_root, self.imkey_list[index]+"_a.xml")
         labelb_path = osp.join(self.im_root, self.imkey_list[index]+"_b.xml")
+        if random.uniform(0, 1) > 0.5:
+            im_a, im_b = im_b, im_a
+            labela_path, labelb_path = labelb_path, labela_path
         label = self.load_pair_label(labela_path, labelb_path, flip, dx, dy, sx, sy)
         return index, im_a, im_b, label
 
