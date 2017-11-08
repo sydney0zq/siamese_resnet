@@ -99,7 +99,7 @@ def parse():
                             help="Rendered image directory.")
     parser.add_argument('--fontfn', type=str, default="./srcs/droid-sans-mono.ttf",
                             help="Font filename when rendering.")
-    parser.add_argument('--render', type=int, default=1,
+    parser.add_argument('--render', type=int, default=0,
                             help="Output rendered files to result directory")
 
     args = parser.parse_args()
