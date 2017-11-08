@@ -124,7 +124,7 @@ def parse_det(pred, imkey, imsize, pairwise, scale_size=512):
 
 ### RENDER AREA ###
 """ All Renders receive list format result """
-def detrender(srcdir, desdir, imkey, deta_crd, detb_crd, font, color="green"):
+def detrender(srcdir, desdir, imkey, deta_crd, detb_crd, font, color="#00ff00"):
     im_a = Image.open(osp.join(srcdir, imkey+"_a.jpg"))
     im_b = Image.open(osp.join(srcdir, imkey+"_b.jpg"))
     for i_det in deta_crd:
@@ -136,7 +136,7 @@ def detrender(srcdir, desdir, imkey, deta_crd, detb_crd, font, color="green"):
     im_a.save(osp.join(desdir, imkey+"_render_a.jpg"))
     im_b.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
-def detrender_t(im_a, im_b, desdir, imkey, deta_crd, detb_crd, font, color="green"):
+def detrender_t(im_a, im_b, desdir, imkey, deta_crd, detb_crd, font, color="#00ff00"):
     for i_det in deta_crd:
         draw_bbox(im_a, i_det[1:], color)
         draw_prob(im_a, i_det, font, color)
@@ -146,7 +146,7 @@ def detrender_t(im_a, im_b, desdir, imkey, deta_crd, detb_crd, font, color="gree
     im_a.save(osp.join(desdir, imkey+"_render_a.jpg"))
     im_b.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
-def labelrender(srcdir, desdir, imkey, gda_crd, gdb_crd, color="red"):
+def labelrender(srcdir, desdir, imkey, gda_crd, gdb_crd, color="#ff0000"):
     """ USE FOLLOW CODE TO RENDER FROM ORIGIN IMAGES, WITH BUGGY
     if osp.exists(osp.join(desdir, imkey+"_render_a.jpg")):
         im_ra = Image.open(osp.join(desdir, imkey+"_render_a.jpg"))
@@ -163,7 +163,7 @@ def labelrender(srcdir, desdir, imkey, gda_crd, gdb_crd, color="red"):
     im_ra.save(osp.join(desdir, imkey+"_render_a.jpg"))
     im_rb.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
-def labelrender_t(im_ra, im_rb, desdir, imkey, gda_crd, gdb_crd, color="red"):
+def labelrender_t(im_ra, im_rb, desdir, imkey, gda_crd, gdb_crd, color="#ff0000"):
     for i_gd in gda_crd:
         draw_bbox(im_ra, i_gd[1:], color)
     for i_gd in gdb_crd:
@@ -171,7 +171,7 @@ def labelrender_t(im_ra, im_rb, desdir, imkey, gda_crd, gdb_crd, color="red"):
     im_ra.save(osp.join(desdir, imkey+"_render_a.jpg"))
     im_rb.save(osp.join(desdir, imkey+"_render_b.jpg"))
 
-def draw_bbox(im, bbox, color="green"):
+def draw_bbox(im, bbox, color="#00ff00"):
     # bbox should in midx, midy, w, h list format
     draw_im = ImageDraw.Draw(im)
     midx, midy, w, h = bbox[:]
@@ -183,7 +183,7 @@ def draw_bbox(im, bbox, color="green"):
     draw_im.line([xmin, ymax, xmax, ymax], width=2, fill=color)
     del draw_im
 
-def draw_prob(im, bbox, font, color="green"):
+def draw_prob(im, bbox, font, color="#00ff00"):
     im_draw = ImageDraw.Draw(im)
     prob_str = "{:.3f}".format(float(bbox[0]))
     topleftx = bbox[1] - bbox[3]/2.0

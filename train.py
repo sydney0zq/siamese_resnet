@@ -46,7 +46,7 @@ def train(args):
                                 momentum=0.9,
                                 weight_decay = args.weight_decay)
     if args.lr_policy == "exp":
-        exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_stepsize, gamma=0.1)
+        exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_stepsize, gamma=0.9)
 
     ### START TO MACHINE LEARNING ###
     tic = time.time()
@@ -125,6 +125,8 @@ def parse():
                             help="Disable CUDA training.")
     parser.add_argument('--model', type=str, default="base", 
                             help="Model module name in model dir and I will save best model the same name.")
+    parser.add_argument('--model_fn', type=str, default="", 
+                            help="Model filename to save.")
     parser.add_argument('--lr_policy', type=str, default="exp", 
                             help="Policy of learning rate change.")
     parser.add_argument('--lr_stepsize', type=int, default=100, 
@@ -137,7 +139,8 @@ def parse():
 
     args = parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
-    args.model_fn = args.model + "_" + date + ".pth.tar"
+    if args.model_fn == "":
+        args.model_fn = args.model + "_" + date + ".pth.tar"
     return args
 
 

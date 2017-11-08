@@ -78,7 +78,8 @@ class Pair_Dataset(data.Dataset):
         im_ori, impair_ori = Image.open(ima_path), Image.open(imb_path) #PAIR
         ow, oh = im_ori.size[0], im_ori.size[1]
         if self.train == True and self.test == False:
-            jitter = 0.2
+            #jitter = 0.2
+            jitter = 0.4
             dw, dh = int(ow*jitter), int(oh*jitter)
             pleft, pright = random.randint(-dw, dw), random.randint(-dw, dw)
             ptop,  pbot   = random.randint(-dh, dh), random.randint(-dh, dh)
