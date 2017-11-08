@@ -23,9 +23,6 @@ Labeling training data is really a time-consuming and money-consuming boring wor
 We divide our images into $14x14$ grid cells. Each cell has a ground truth $[P(Object)][P(A|Object), P(B|Object), midx, midy, w, h]$ If one specified cell, image A and image B both exist one object to each other. Then we label $P(A|Object)=1$ and $P(B|Object)=1$, but we have only one bounding box size. We here just either one because the two objects in the rough have same bounding box shape and size.\\
 
 
-
-
-
 \section{2.2 Model Architecture}
 
 We treat this problem as a regression problem, like YOLO[r]. Our network structure is very simple, as we use a very small dataset which contains approximately 500 pair images in the training and validating phase,  50 pair images in the testing phase, therefore a pretrained model design is necessary. In our project we choose the famous network architecture, ResNet[r]. It is worth mentioning that our model is fully convolutional.\\
