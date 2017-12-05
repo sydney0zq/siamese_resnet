@@ -7,7 +7,7 @@
 #
 
 
-test_fn="/home/zq/DATASETS/diff_vending/test.txt"
+test_fn="/home/zq/DATASETS/diff_vending/test_20171117.txt"
 RES_DIR="result"
 
 while IFS= read -r line

@@ -34,3 +34,6 @@ class DiffNetwork(nn.Module):
         sub_fea = outputa - outputb
         output = self.regression(sub_fea)
         return output
+if __name__ == "__main__":
+    c = DiffNetwork()
+    print (c)

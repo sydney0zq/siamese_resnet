@@ -6,9 +6,9 @@
 # Distributed under terms of the MIT license.
 #
 
-IM_DIR="./test/"          # Must with /
-IMA_FN=./index/testa.txt
-IMB_FN=./index/testb.txt
+IM_DIR="./test_20171117/"          # Must with /
+IMA_FN=./index/test20171117a.txt
+IMB_FN=./index/test20171117bb.txt
 
 ### Generate image text filename
 echo " | Generate testing set txt file to cache dir..."

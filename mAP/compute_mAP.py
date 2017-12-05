@@ -164,7 +164,7 @@ def voc_eval(detpath, annopath, imagesetfile, classname, ovthresh=0.5, use_07_me
     return rec, prec, ap
 
 def assistor(detpath, annopath, imagesetfile, classname):
-    rec, prec, ap = voc_eval(detpath, annopath, imagesetfile, classname, ovthresh=0.5, use_07_metric=True)
+    rec, prec, ap = voc_eval(detpath, annopath, imagesetfile, classname, ovthresh=0.5, use_07_metric=False)
     print (' | {}--------------'.format(classname))
     print (' | --ap: {}'.format(ap))
     print (' | --max prec: {}'.format(max(prec)))

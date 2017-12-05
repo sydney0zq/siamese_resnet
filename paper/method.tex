@@ -51,6 +51,30 @@ As we can see, our loss function takes in $7x14x14$ values, we calculate each gr
 What a optimizer does is updating all parameters in our model by current effective strategy, Stochastic Gradient Descent and Back Propgation. We also combine current fashion trick used in optimzation stage. In our routine result, our optimizer is SGD with $momentum = 0.9$. And we set our weight decay to $5e-4$, a small number. We have few training examples so we set weight decay weaker, which is a rule of thumb. As far as I observe, the learning scheduler and epoch number are the most significant factor. We use a exponent learning rate scheduler and the initial learning rate is 0.002. We decay our learning rate by factor $0.9$ every $100$ epochs. And we also tried different epochs number to squeeze the model potential.\\
 
 
+\section {2.5 Metric}
+
+In this task, we follow PASCAL VOC criterion, mAP@0.5(mean Average Precision)[r], the open and most popular metric in many challenges and datasets in detection area. \\
+
+
+\section {3 Experiments}
+
+\section {3.1 Different depth of network}
+
+To be honest, how deep should our model be can not be calculated or analyzed precisely. We could only make several experiments and choose the reasonable and those best ones. At first, we use several different but alike models and same hyper parameters. The first one is a very tiny ResNet, the second one is deeper and the third one is the deepest model and worst performance model.\\
+
+Conv2d 3x3 64->64
+Conv2d 3x3 64->64
+
+Conv2d 3x3 64->64
+Conv2d 3x3 64->64
+
+Conv2d 3x3 64->128
+Conv2d 3x3 128->128
+
+Conv2d 3x3 128->128
+Conv2d 3x3 128->128
+
+
 
 
 

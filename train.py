@@ -147,4 +147,5 @@ def parse():
 if __name__ == "__main__":
     args = parse()
     train(args)
+    print (args)
 

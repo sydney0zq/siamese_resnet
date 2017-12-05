@@ -1,0 +1,4 @@
+simplesub_2017-11-07.pth.tar -- 600 个Epoch 79.8
+simplesub_2333_2017-11-07.pth.tar -- 800 个Epoch 85
+sub_2017-11-08.pth.tar -- 600个Epoch 84
+

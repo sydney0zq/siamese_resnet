@@ -46,6 +46,24 @@ def render_orim(args, imkey, label, pred):
         detrender_t(im_a, im_b, args.desdir, imkey, deta_crd, detb_crd, font)
     return deta_str, detb_str
 
+def render_wo_gd(args, imkey, pred):
+    font = ImageFont.truetype(args.fontfn, 12)
+    imsize = getimsize(args.test_dir, imkey)
+    # deta_crd and gda_crd are both (midx, midy, w, h) on scaled images
+    deta_crd = parse_det(pred, imkey, imsize, 1)
+    detb_crd = parse_det(pred, imkey, imsize, 2)
+    
+    # Scale bbox
+    deta_crd, detb_crd = scale_trans(deta_crd, imsize), scale_trans(detb_crd, imsize)
+    deta_str, detb_str = bbox2str(deta_crd, imkey, 1), bbox2str(detb_crd, imkey, 2)
+
+    # Render on images
+    if args.render == 1:
+        im_a_path = osp.join(args.test_dir, imkey + "_a.jpg")
+        im_b_path = osp.join(args.test_dir, imkey + "_b.jpg")
+        im_a, im_b = Image.open(im_a_path), Image.open(im_b_path)
+        detrender_t(im_a, im_b, args.desdir, imkey, deta_crd, detb_crd, font)
+    return deta_str, detb_str
 
 
 
@@ -193,14 +211,19 @@ def draw_prob(im, bbox, font, color="#00ff00"):
 
 def getimsize(im_root, imkey):
     assert (type(imkey) == type("")), " | Error: imkey shold be string type..."
+    xmlpath = ""
     if osp.exists(osp.join(im_root, imkey+"_a.xml")):
         xmlpath = osp.join(im_root, imkey+"_a.xml")
-    else:
+    elif osp.exists(osp.join(im_root, imkey+"_b.xml")):
         xmlpath = osp.join(im_root, imkey+"_b.xml")
-    tree = ET.parse(xmlpath)
-    im_size = tree.findall("size")[0]
-    ow = int(im_size.find("width").text)
-    oh = int(im_size.find("height").text)
+    if xmlpath != "":
+        tree = ET.parse(xmlpath)
+        im_size = tree.findall("size")[0]
+        ow = int(im_size.find("width").text)
+        oh = int(im_size.find("height").text)
+    else:
+        im = Image.open(osp.join(im_root, imkey+"_a.jpg"))
+        ow, oh = im.size
     return (ow, oh)
 
 def scale_trans(bbox, imsize, scale_size=512):
