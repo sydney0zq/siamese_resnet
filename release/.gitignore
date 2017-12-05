@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.swp
+*.tar
+*.log
+result/*
+*.png
+*.jpg
+
+
+
+RESULTS/
+model_repo/
